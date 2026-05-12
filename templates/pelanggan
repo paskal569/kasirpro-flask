@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pelanggan - KasirPro</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Icons & Bootstrap -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/pelanggan.css') }}">
+</head>
+
+<body>
+<div class="layout">
+
+  <!-- ═══════════════════════════════════════
+       SIDEBAR
+  ═══════════════════════════════════════ -->
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="dot"></span>
+      KasirPro
+    </div>
+
+    <nav class="nav">
+      <a href="{{ url_for('dashboard.index') }}">
+        <i class="fas fa-home fa-fw"></i> Dashboard
+      </a>
+      <a href="{{ url_for('pembayaran.pembayaran') }}">
+        <i class="fas fa-money-bill fa-fw"></i> Pembayaran
+      </a>
+      <a href="{{ url_for('laporan.output_barang') }}">
+        <i class="fas fa-chart-bar fa-fw"></i> Laporan
+      </a>
+      <a href="{{ url_for('kalkulator.halaman_kalkulator') }}">
+        <i class="fas fa-calculator fa-fw"></i> Kalkulator
+      </a>
+      <a href="{{ url_for('input_barang.input_barang') }}">
+        <i class="fas fa-plus-circle fa-fw"></i> Input Barang
+      </a>
+      <a href="{{ url_for('stock.halaman_stock') }}">
+        <i class="fas fa-boxes fa-fw"></i> Stock
+      </a>
+      <a href="{{ url_for('kategori.daftar_kategori') }}">
+        <i class="fas fa-tags fa-fw"></i> Kategori
+      </a>
+      <a href="{{ url_for('transaksi.daftar_transaksi') }}">
+        <i class="fas fa-exchange-alt fa-fw"></i> Transaksi
+      </a>
+      <a href="{{ url_for('pelanggan.halaman_pelanggan') }}" class="active">
+        <i class="fas fa-users fa-fw"></i> Pelanggan
+      </a>
+      <a href="{{ url_for('pengaturan.pengaturan') }}">
+        <i class="fas fa-cog fa-fw"></i> Pengaturan
+      </a>
+      <a href="#" data-bs-toggle="modal" data-bs-target="#logoutmodal">
+        <i class="fas fa-sign-out-alt fa-fw"></i> Logout
+      </a>
+    </nav>
+  </aside>
+
+  <!-- ═══════════════════════════════════════
+       MAIN CONTENT
+  ═══════════════════════════════════════ -->
+  <main class="main-content">
+
+    <!-- Page Header -->
+    <header class="page-header">
+      <h1 class="page-header__title">Analisis Keramaian Pelanggan Toko</h1>
+      <p class="page-header__subtitle">
+        Kelola dan pantau semua transaksi pelanggan — {{ hari_ini.strftime('%d %B %Y') }}
+      </p>
+    </header>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3"
+               role="alert"
+               style="z-index:9999; min-width:340px; border-radius:10px; text-align:center;">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <div class="page-body">
+
+      <!-- ─────────────────────────────────
+           SUMMARY CARDS
+      ───────────────────────────────── -->
+      <section class="summary-cards">
+
+        <div class="card-summary" id="card-1">
+          <div class="card-summary__header">
+            <i class="fas fa-users"></i>
+            <span class="card-summary__title">Total Pengunjung</span>
+          </div>
+          <div class="card-summary__value">{{ total_pengunjung }}</div>
+        </div>
+
+        <div class="card-summary" id="card-2">
+          <div class="card-summary__header">
+            <i class="fas fa-shopping-cart"></i>
+            <span class="card-summary__title">Total Pembelian</span>
+          </div>
+          <div class="card-summary__value">{{ total_pembelian }}</div>
+        </div>
+
+        <div class="card-summary" id="card-3">
+          <div class="card-summary__header">
+            <i class="fas fa-clock"></i>
+            <span class="card-summary__title">Rata-rata Durasi</span>
+          </div>
+          <div class="card-summary__value">{{ rata_durasi }}</div>
+        </div>
+
+        <div class="card-summary" id="card-4">
+          <div class="card-summary__header">
+            <i class="fas fa-tag"></i>
+            <span class="card-summary__title">Conversion Rate</span>
+          </div>
+          <div class="card-summary__value">{{ conversion_rate }}</div>
+        </div>
+
+      </section>
+
+      <!-- ─────────────────────────────────
+           FILTER & JUDUL GRAFIK
+      ───────────────────────────────── -->
+      <section class="section-filter">
+        <div class="section-filter__header">
+          <h2 class="section-filter__title">Pantau Keramaian Toko Anda — Pola Jam</h2>
+          <div class="section-filter__buttons">
+            <a href="?filter=hari"
+               class="btn btn-filter {% if filter_aktif == 'hari' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+              Hari Ini
+            </a>
+            <a href="?filter=minggu"
+               class="btn btn-filter {% if filter_aktif == 'minggu' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+              Minggu Ini
+            </a>
+            <a href="?filter=bulan"
+               class="btn btn-filter {% if filter_aktif == 'bulan' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+              Bulan Ini
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─────────────────────────────────
+           PANEL PENGUNJUNG + GRAFIK JAM
+      ───────────────────────────────── -->
+      <section class="section-analytics">
+
+        <!-- Panel: Total Pengunjung -->
+        <div class="panel-pengunjung">
+          <div class="panel-pengunjung__icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21"
+                    stroke="#3A56D4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M9 11C11.2091 11 13 9.20914 13 7C13 4.79086 11.2091 3 9 3C6.79086 3 5 4.79086 5 7C5 9.20914 6.79086 11 9 11Z"
+                    stroke="#3A56D4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M23 20.9999V18.9999C22.9993 18.1136 22.7044 17.2527 22.1614 16.5522C21.6184 15.8518 20.8581 15.3515 20 15.1299"
+                    stroke="#3A56D4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M16 3.12988C16.8604 3.35019 17.623 3.85059 18.1676 4.5522C18.7122 5.2538 19.0078 6.11671 19.0078 7.00488C19.0078 7.89306 18.7122 8.75596 18.1676 9.45757C17.623 10.1592 16.8604 10.6596 16 10.8799"
+                    stroke="#3A56D4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <p class="panel-pengunjung__label">Total Pengunjung Hari Ini</p>
+          <p class="panel-pengunjung__value">{{ total_pengunjung }}</p>
+        </div>
+
+        <!-- Panel: Grafik Batang per Jam -->
+        <div class="panel-grafik">
+          <canvas id="grafikJam" height="120"></canvas>
+        </div>
+
+      </section>
+
+      <!-- ─────────────────────────────────
+           DURASI + CONVERSION RATE
+      ───────────────────────────────── -->
+      <div class="section-mid">
+
+        <!-- Durasi Kunjungan -->
+        <section class="section-durasi">
+          <div class="section-durasi__header">
+            <h2 class="section-durasi__title">Durasi Kunjungan Pelanggan</h2>
+            <div class="section-durasi__value">{{ rata_durasi }}</div>
+          </div>
+
+          <div class="durasi-list">
+            <div class="durasi-item">
+              <div class="durasi-item__label">
+                <span class="durasi-item__range">&lt; 5 menit</span>
+                <span class="durasi-item__desc">Pengunjung cepat</span>
+              </div>
+              <span class="badge bg-secondary">{{ durasi_breakdown.cepat }} orang</span>
+            </div>
+
+            <div class="durasi-item">
+              <div class="durasi-item__label">
+                <span class="durasi-item__range">5 – 15 menit</span>
+                <span class="durasi-item__desc">Browsing singkat</span>
+              </div>
+              <span class="badge bg-info text-dark">{{ durasi_breakdown.singkat }} orang</span>
+            </div>
+
+            <div class="durasi-item">
+              <div class="durasi-item__label">
+                <span class="durasi-item__range">15 – 30 menit</span>
+                <span class="durasi-item__desc">Belanja detail</span>
+              </div>
+              <span class="badge bg-primary">{{ durasi_breakdown.detail }} orang</span>
+            </div>
+
+            <div class="durasi-item">
+              <div class="durasi-item__label">
+                <span class="durasi-item__range">&gt; 30 menit</span>
+                <span class="durasi-item__desc">Kunjungan lama</span>
+              </div>
+              <span class="badge bg-success">{{ durasi_breakdown.lama }} orang</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Conversion Rate -->
+        <section class="section-conversion">
+          <div class="section-conversion__header">
+            <h2 class="section-conversion__title">Analisis Conversion Rate</h2>
+            <div class="section-conversion__value">{{ conversion_rate }}</div>
+          </div>
+
+          {% set total_pembeli   = items | sum(attribute='pembeli') %}
+          {% set total_kunjungan = items | sum(attribute='total') %}
+          {% set pct_beli  = ((total_pembeli / total_kunjungan * 100) | round | int) if total_kunjungan > 0 else 0 %}
+          {% set pct_tidak = (((total_kunjungan - total_pembeli) / total_kunjungan * 100) | round | int) if total_kunjungan > 0 else 0 %}
+
+          <div class="conversion-list">
+
+            <div class="conversion-item">
+              <div class="conversion-item__label">
+                <span class="conversion-item__range">Pengunjung yang Membeli</span>
+                <span class="conversion-item__desc">{{ total_pembeli }} dari {{ total_kunjungan }} orang</span>
+              </div>
+              <div class="conversion-item__bar">
+                <div class="conversion-item__bar-track">
+                  <div class="conversion-item__bar-fill" style="width:{{ pct_beli }}%"></div>
+                </div>
+              </div>
+              <span class="conversion-item__info">{{ pct_beli }}% conversion rate</span>
+            </div>
+
+            <div class="conversion-item">
+              <div class="conversion-item__label">
+                <span class="conversion-item__range">Tidak Membeli</span>
+                <span class="conversion-item__desc">{{ total_kunjungan - total_pembeli }} dari {{ total_kunjungan }} orang</span>
+              </div>
+              <div class="conversion-item__bar">
+                <div class="conversion-item__bar-track">
+                  <div class="conversion-item__bar-fill" style="width:{{ pct_tidak }}%"></div>
+                </div>
+              </div>
+              <span class="conversion-item__info">{{ pct_tidak }}% tidak membeli</span>
+            </div>
+
+            <div class="conversion-item">
+              <div class="conversion-item__label">
+                <span class="conversion-item__range">Rata-rata Belanja</span>
+                <span class="conversion-item__desc">Per pengunjung yang membeli</span>
+              </div>
+              <div class="conversion-item__bar">
+                <div class="conversion-item__bar-track">
+                  <div class="conversion-item__bar-fill" style="width:75%"></div>
+                </div>
+              </div>
+              <span class="conversion-item__info">{{ conversion_rate }}</span>
+            </div>
+
+          </div>
+        </section>
+
+      </div><!-- /.section-mid -->
+
+      <!-- ─────────────────────────────────
+           TABEL DETAIL PER JAM
+      ───────────────────────────────── -->
+      <section class="section-table">
+        <div class="section-table__header">
+          <h2 class="section-table__title">Detail Perilaku Pengunjung per Jam</h2>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Jam</th>
+                <th>Total Pengunjung</th>
+                <th>Pembeli</th>
+                <th>Jumlah Belanja</th>
+                <th>Tidak Membeli</th>
+                <th>Conversion Rate</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in items %}
+              <tr>
+                <td>{{ item.jam }}</td>
+                <td>{{ item.total }}</td>
+                <td>{{ item.pembeli }}</td>
+                <td>Rp {{ "{:,.0f}".format(item.jumlah) }}</td>
+                <td>{{ item.tidak_membeli }}</td>
+                <td>{{ item.conversion_rate }}</td>
+                <td>
+                  <span class="badge
+                    {% if item.status == 'Ramai' %}bg-danger
+                    {% elif item.status == 'Sedang' %}bg-warning text-dark
+                    {% else %}bg-success{% endif %}">
+                    {{ item.status }}
+                  </span>
+                </td>
+              </tr>
+              {% else %}
+              <tr>
+                <td colspan="7" class="text-center text-muted py-3">
+                  <i class="fas fa-inbox me-2"></i>Belum ada data kunjungan
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ─────────────────────────────────
+           DAFTAR PELANGGAN
+      ───────────────────────────────── -->
+      <section class="section-table mt-4">
+        <div class="section-table__header">
+          <h2 class="section-table__title">Daftar Pelanggan</h2>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Nama</th>
+                <th>Bergabung</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for p in pelanggan_list %}
+              <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ p.nama }}</td>
+                <td>{{ p.created_at.strftime('%d %b %Y') if p.created_at else '-' }}</td>
+                <td>
+                  <a href="{{ url_for('pelanggan.detail_pelanggan', nama_pelanggan=p.nama) }}"
+                     class="btn btn-sm btn-info">Detail</a>
+                  <a href="{{ url_for('pelanggan.edit_pelanggan', nama_pelanggan=p.nama) }}"
+                     class="btn btn-sm btn-warning">Edit</a>
+                </td>
+              </tr>
+              {% else %}
+              <tr>
+                <td colspan="4" class="text-center text-muted py-3">
+                  <i class="fas fa-users me-2"></i>Belum ada pelanggan terdaftar
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </div><!-- /.page-body -->
+  </main>
+</div><!-- /.layout -->
+
+
+<!-- ═══════════════════════════════════════
+     MODAL LOGOUT
+═══════════════════════════════════════ -->
+<div class="modal fade" id="logoutmodal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Konfirmasi Logout</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">Apakah Anda yakin ingin keluar?</div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+        <a href="{{ url_for('auth.logout') }}" class="btn btn-danger">Logout</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════
+     SCRIPTS
+═══════════════════════════════════════ -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script src="{{ url_for('static', filename='js/pelanggan.js') }}"></script>
+
+<script>
+/* ── Grafik per Jam — data dari Flask ───────────────── */
+document.addEventListener('DOMContentLoaded', function () {
+  const labels = {{ grafik_labels | default([]) | tojson }};
+  const values = {{ grafik_values | default([]) | tojson }};
+
+  const canvas = document.getElementById('grafikJam');
+  if (!canvas) return;
+
+  if (labels.length === 0) {
+    canvas.parentElement.innerHTML =
+      '<p style="text-align:center;color:#aaa;padding:40px 0;">Belum ada data kunjungan</p>';
+    return;
+  }
+
+  new Chart(canvas, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Jumlah Pengunjung',
+        data: values,
+        backgroundColor: 'rgba(58, 86, 212, 0.75)',
+        borderColor:     'rgba(58, 86, 212, 1)',
+        borderWidth: 1,
+        borderRadius: 6,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => ` ${ctx.parsed.y} pengunjung`
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: { stepSize: 1 },
+          grid: { color: 'rgba(0,0,0,0.05)' }
+        },
+        x: {
+          grid: { display: false }
+        }
+      }
+    }
+  });
+});
+</script>
+
+</body>
+</html>
