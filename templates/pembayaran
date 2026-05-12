@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta charset="utf-8" />
+    <title>{% block title %}Metode Pembayaran{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/pembayaran.css') }}">
+  </head>
+  <body>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3"
+               role="alert" style="z-index: 9999; min-width: 350px;">
+            <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'danger' %}exclamation-circle{% elif category == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %} me-2"></i>
+            <strong>{{ message }}</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    </div>
+
+    <form method="POST" action="{{ url_for('pembayaran.proses_pembayaran') }}" id="paymentForm">
+
+      <!-- Hidden inputs untuk Flask -->
+      <input type="hidden" name="total_harga"   value="{{ total_harga }}">
+      <input type="hidden" name="subtotal"       value="{{ total_harga }}">
+      <input type="hidden" name="diskon"         value="0">
+      <input type="hidden" name="pajak"          value="0">
+      <input type="hidden" name="payment_method" id="payment_method"     value="tunai">
+      <input type="hidden" name="no_rekening"    id="no_rekening_hidden" value="">
+      <input type="hidden" name="invoice" value="{{ invoice }}">
+      <main class="pembayaran-container">
+
+        <!-- HEADER -->
+        <header class="metode-pembayaran-header">
+          <div class="header-content">
+            <h1 class="header-title">Metode Pembayaran</h1>
+            <p class="header-subtitle">Pilih metode pembayaran yang diinginkan</p>
+          </div>
+        </header>
+
+        <!-- BODY CONTENT -->
+        <div class="body-content">
+
+          <!-- ═══ KIRI ═══ -->
+          <div class="left-panel">
+
+            <!-- Total -->
+            <section class="total-section">
+              <span class="total-label">Total Pembayaran</span>
+              <div class="total-amount" id="total-amount">
+                Rp {{ "{:,.0f}".format(total_harga) }}
+              </div>
+            </section>
+
+            <!-- Metode Pembayaran -->
+            <div class="payment-method-section">
+              <p class="section-legend">Pilih Metode Pembayaran</p>
+
+              <!-- 3 tombol utama -->
+              <div class="payment-methods">
+                <button type="button" class="pay-btn active" id="btn-tunai" onclick="selectMethod('tunai', this)">
+                  <span class="method-icon"><i class="fas fa-money-bill-wave"></i></span>
+                  <span class="method-label">Tunai</span>
+                </button>
+                <button type="button" class="pay-btn" id="btn-kartu" onclick="selectMethod('kartu', this)">
+                  <span class="method-icon"><i class="fas fa-credit-card"></i></span>
+                  <span class="method-label">Kartu</span>
+                </button>
+                <button type="button" class="pay-btn" id="btn-ewallet" onclick="selectMethod('ewallet', this)">
+                  <span class="method-icon"><i class="fas fa-wallet"></i></span>
+                  <span class="method-label">E-Wallet</span>
+                </button>
+              </div>
+
+              <!-- Panel Tunai -->
+              <div class="slide-panel open" id="panel-tunai">
+                <p class="panel-info">
+                  <i class="fas fa-info-circle"></i>
+                  Bayar langsung dengan uang tunai. Masukkan jumlah uang di bawah.
+                </p>
+              </div>
+
+              <!-- Panel Kartu -->
+              <div class="slide-panel" id="panel-kartu">
+                <p class="panel-sub-label">Pilih bank penerbit:</p>
+                <div class="bank-grid">
+                  <button type="button" class="bank-btn bca"     onclick="pickBank('BCA', this)">BCA</button>
+                  <button type="button" class="bank-btn mandiri" onclick="pickBank('Mandiri', this)">MANDIRI</button>
+                  <button type="button" class="bank-btn bni"     onclick="pickBank('BNI', this)">BNI</button>
+                  <button type="button" class="bank-btn bri"     onclick="pickBank('BRI', this)">BRI</button>
+                  <button type="button" class="bank-btn cimb"    onclick="pickBank('CIMB', this)">CIMB</button>
+                  <button type="button" class="bank-btn permata" onclick="pickBank('Permata', this)">PERMATA</button>
+                </div>
+
+                <div id="div-no-rekening-kartu" style="display:none; margin-top:12px;">
+                  <label class="panel-sub-label">
+                    <i class="fas fa-university"></i> Nomor Rekening Pengirim
+                  </label>
+                  <input
+                    type="text"
+                    id="input-no-rekening-kartu"
+                    class="cash-input"
+                    placeholder="Masukkan nomor rekening (min. 8 digit)"
+                    inputmode="numeric"
+                    maxlength="20"
+                    oninput="simpanNoRekeningPelanggan(this.value); cekBisaProses();"
+                  >
+                  <p id="pesan-no-rekening-kartu"
+                     style="font-size:12px; color:#dc3545; margin-top:4px; display:none;">
+                    Nomor rekening wajib diisi
+                  </p>
+                </div>
+
+                <div id="info-transfer-bank"></div>
+              </div>
+
+              <!-- Panel E-Wallet -->
+              <div class="slide-panel" id="panel-ewallet">
+                <p class="panel-sub-label">Pilih e-wallet:</p>
+                <div class="wallet-grid">
+                  <button type="button" class="wallet-btn" onclick="pickWallet('GoPay', this)">GoPay</button>
+                  <button type="button" class="wallet-btn" onclick="pickWallet('OVO', this)">OVO</button>
+                  <button type="button" class="wallet-btn" onclick="pickWallet('DANA', this)">DANA</button>
+                  <button type="button" class="wallet-btn" onclick="pickWallet('ShopeePay', this)">ShopeePay</button>
+                  <button type="button" class="wallet-btn" onclick="pickWallet('LinkAja', this)">LinkAja</button>
+                </div>
+
+                <div id="div-no-ewallet" style="display:none; margin-top:12px;">
+                  <label class="panel-sub-label">
+                    <i class="fas fa-wallet"></i> Nomor HP / Kode E-Wallet
+                  </label>
+                  <input
+                    type="text"
+                    id="input-no-rekening-ewallet"
+                    class="cash-input"
+                    placeholder="Contoh: 08123456789"
+                    inputmode="numeric"
+                    maxlength="15"
+                    oninput="simpanNoRekeningPelanggan(this.value); cekBisaProses();"
+                  >
+                  <p id="pesan-no-rekening-ewallet"
+                     style="font-size:12px; color:#dc3545; margin-top:4px; display:none;">
+                    Nomor e-wallet wajib diisi
+                  </p>
+                </div>
+
+                <div id="info-transfer-wallet"></div>
+              </div>
+
+            </div>
+            <!-- end payment-method-section -->
+
+            <!-- Input Jumlah Uang Tunai -->
+            <section class="cash-input-section" id="section-cash">
+              <label for="cash-amount" class="input-label">Jumlah Uang Diterima</label>
+              <div class="input-wrapper">
+                <input
+                  type="text"
+                  id="cash-amount"
+                  name="cash_amount"
+                  class="cash-input"
+                  placeholder="Masukkan jumlah uang"
+                  inputmode="numeric"
+                />
+                <span class="currency-badge">IDR</span>
+              </div>
+              <div class="quick-amount-buttons">
+                <button type="button" class="quick-btn" data-amount="50000">Rp 50.000</button>
+                <button type="button" class="quick-btn" data-amount="100000">Rp 100.000</button>
+                <button type="button" class="quick-btn" data-amount="150000">Rp 150.000</button>
+                <button type="button" class="quick-btn" data-amount="200000">Rp 200.000</button>
+                <button type="button" class="quick-btn" data-amount="500000">Rp 500.000</button>
+                <button type="button" class="quick-btn exact-btn" data-amount="{{ total_harga }}">Uang Pas</button>
+              </div>
+            </section>
+
+          </div>
+          <!-- end left-panel -->
+
+          <!-- ═══ KANAN ═══ -->
+          <div class="right-panel">
+
+            <aside class="summary-card">
+              <h2 class="summary-title">Ringkasan Pembayaran</h2>
+              <div class="summary-row">
+                <span class="summary-key">Metode Pembayaran</span>
+                <span class="summary-val" id="summary-method">Tunai</span>
+              </div>
+              <div class="summary-row">
+                <span class="summary-key">Total Pembayaran</span>
+                <span class="summary-val bold">Rp {{ "{:,.0f}".format(total_harga) }}</span>
+              </div>
+            </aside>
+
+            <div class="action-buttons">
+              <button type="button" class="btn-proses" id="btn-proses"disabled onclick="prosesPayment()">
+              Proses Pembayaran
+            </button>
+              <button type="button" class="btn-reset" id="btn-reset">Reset</button>
+            </div>
+
+            <div class="info-alert">
+              <i class="fas fa-info-circle info-icon"></i>
+              <p class="info-text">Pastikan semua informasi pembayaran sudah benar sebelum memproses transaksi.</p>
+            </div>
+
+          </div>
+          <!-- end right-panel -->
+
+        </div>
+        <!-- end body-content -->
+
+      </main>
+    </form>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/pembayaran.js') }}"></script>
+  </body>
+</html>
