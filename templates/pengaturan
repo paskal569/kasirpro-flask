@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pengaturan - KasirPro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/pengaturan.css') }}">
+</head>
+<body>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3"
+             role="alert" style="z-index:99999;min-width:350px;border-radius:10px;text-align:center;box-shadow:0 4px 15px rgba(0,0,0,0.2);">
+          <strong>{{ message }}</strong>
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <div class="page">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="brand"><span class="dot"></span> KasirPro</div>
+      <nav class="nav">
+        <a href="{{ url_for('dashboard.index') }}" class="active"><i class="fas fa-home fa-fw"></i> Dashboard</a>
+        <a href="{{ url_for('pembayaran.pembayaran') }}"><i class="fas fa-money-bill fa-fw"></i> Pembayaran</a>
+        <a href="{{ url_for('laporan.output_barang') }}"><i class="fas fa-chart-bar fa-fw"></i> Laporan</a>
+        <a href="{{ url_for('kalkulator.halaman_kalkulator') }}"><i class="fas fa-calculator fa-fw"></i> Kalkulator</a>
+        <a href="{{ url_for('input_barang.input_barang') }}"><i class="fas fa-plus-circle fa-fw"></i> Input Barang</a>
+        <a href="{{ url_for('stock.halaman_stock') }}"><i class="fas fa-boxes fa-fw"></i> Stock</a>
+        <a href="{{ url_for('kategori.daftar_kategori') }}"><i class="fas fa-tags fa-fw"></i> Kategori</a>
+        <a href="{{ url_for('transaksi.daftar_transaksi') }}"><i class="fas fa-exchange-alt fa-fw"></i> Transaksi</a>
+        <a href="{{ url_for('pelanggan.halaman_pelanggan') }}"><i class="fas fa-users fa-fw"></i> Pelanggan</a>
+       <a href="{{ url_for('pengaturan.pengaturan') }}"><i class="fas fa-cog fa-fw"></i> Pengaturan</a>
+        <a href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">
+          <i class="fas fa-sign-out-alt fa-fw"></i> Logout
+        </a>
+      </nav>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+      <div class="pengaturan-body">
+
+        <!-- Sidebar Pengaturan -->
+        <div class="peng-sidebar">
+          <a class="peng-nav-item active" href="{{ url_for('pengaturan.profil_pengguna') }}">
+            <i class="fas fa-user"></i> Profil Pengguna
+          </a>
+          <a class="peng-nav-item" href="{{ url_for('pengaturan.data_perusahaan') }}">
+            <i class="fas fa-building"></i> Data Perusahaan
+          </a>
+          <a class="peng-nav-item" href="{{ url_for('auth.change_password') }}">
+            <i class="fas fa-lock"></i> Keamanan
+          </a>
+          <a class="peng-nav-item" href="{{ url_for('pengaturan.halaman_backup_restore') }}">
+          <i class="fas fa-database"></i> Backup & Restore
+         </a>
+          <a class="peng-nav-item" href="{{ url_for('pengaturan.integrasi') }}">
+            <i class="fas fa-plug"></i> Integrasi
+          </a>
+        </div>
+
+        <form method="POST" action="{{ url_for('pengaturan.profil_pengguna') }}">
+        <!-- Konten Pengaturan -->
+        <div class="peng-content">
+          <div class="section-title">Profil Pengguna</div>
+
+          <div class="profile-top">
+            <div class="avatar" id="avatar-container">
+              <img
+                id="foto-profil"
+                src=""
+                alt="Foto Profil"
+                style="display:none; width:100%; height:100%; object-fit:cover; border-radius:50%;"
+              >
+              <span id="avatar-inisial">AD</span>
+            </div>
+
+            <div>
+              <button class="btn-outline-peng" id="btn-ubah-foto" type="button">
+                <i class="fas fa-camera" style="margin-right:6px;"></i> Ubah Foto
+              </button>
+              <input type="file" id="input-foto" accept="image/*" style="display:none;">
+              <button class="btn-outline-peng" id="btn-hapus-foto" type="button"
+                      style="display:none; margin-top:8px; color:red; border-color:red;">
+                <i class="fas fa-trash" style="margin-right:6px;"></i> Hapus Foto
+              </button>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="nama-lengkap">Nama Lengkap</label>
+              <input type="text" id="nama-lengkap" name="nama_lengkap"
+                     value="{{ user.nama_lengkap or '' }}"
+                     placeholder="Masukkan nama lengkap">
+            </div>
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input type="email" id="email" name="email"
+                     value="{{ user.email or '' }}"
+                     placeholder="Masukkan email">
+            </div>
+            <div class="form-group">
+              <label for="telepon">Nomor Telepon</label>
+              <input type="tel" id="telepon" name="telepon"
+                     value="{{ user.telepon or '' }}"
+                     placeholder="Masukkan nomor telepon">
+            </div>
+            <div class="form-group">
+              <label for="role">Role</label>
+              <input type="text" id="role" name="role"
+                     value="{{ user.role or '' }}"
+                     placeholder="Admin" disabled>
+            </div>
+          </div>
+
+          <hr class="divider">
+          <div class="sub-title">Keamanan Akun</div>
+          <button type="button" class="btn-security"
+                  onclick="window.location.href='{{ url_for('auth.change_password') }}'">
+            <i class="fas fa-key"></i> Ubah Password
+          </button>
+
+          <hr class="divider">
+          <div class="actions">
+            <button type="button" class="btn-cancel"
+                    onclick="window.location.href='{{ url_for('pengaturan.pengaturan') }}'">
+              Batal
+            </button>
+            <button type="submit" class="btn-save">Simpan Perubahan</button>
+          </div>
+        </div>
+        </form>
+
+      </div>
+    </main>
+    <!-- ══ MODAL LOGOUT ══ -->
+  <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="logoutModalLabel">Logout</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          Apakah anda yakin ingin logout?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+          <a href="{{ url_for('auth.logout') }}" class="btn btn-primary">OK</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+  <script src="{{ url_for('static', filename='js/pengaturan.js') }}"></script>
+</body>
+</html>
