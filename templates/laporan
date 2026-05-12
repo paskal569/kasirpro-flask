@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8" />
+  <title>{% block title %}Laporan Barang Keluar{% endblock %}</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Icons & Bootstrap -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+
+  <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/laporan.css') }}">
+</head>
+
+<body>
+<div class="generated-design">
+
+  <!-- ═══════════════════════════════════════
+       SIDEBAR
+  ═══════════════════════════════════════ -->
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="dot"></span>
+      Kasir App
+    </div>
+    <nav class="nav">
+       <a href="{{ url_for('dashboard.index') }}" class="active"><i class="fas fa-home fa-fw"></i> Dashboard</a>
+        <a href="{{ url_for('pembayaran.pembayaran') }}"><i class="fas fa-money-bill fa-fw"></i> Pembayaran</a>
+        <a href="{{ url_for('laporan.output_barang') }}"><i class="fas fa-chart-bar fa-fw"></i> Laporan</a>
+        <a href="{{ url_for('kalkulator.halaman_kalkulator') }}"><i class="fas fa-calculator fa-fw"></i> Kalkulator</a>
+        <a href="{{ url_for('input_barang.input_barang') }}"><i class="fas fa-plus-circle fa-fw"></i> Input Barang</a>
+        <a href="{{ url_for('stock.halaman_stock') }}"><i class="fas fa-boxes fa-fw"></i> Stock</a>
+        <a href="{{ url_for('kategori.daftar_kategori') }}"><i class="fas fa-tags fa-fw"></i> Kategori</a>
+        <a href="{{ url_for('transaksi.daftar_transaksi') }}"><i class="fas fa-exchange-alt fa-fw"></i> Transaksi</a>
+        <a href="{{ url_for('pelanggan.halaman_pelanggan') }}"><i class="fas fa-users fa-fw"></i> Pelanggan</a>
+       <a href="{{ url_for('pengaturan.pengaturan') }}"><i class="fas fa-cog fa-fw"></i> Pengaturan</a>
+        <a href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">
+          <i class="fas fa-sign-out-alt fa-fw"></i> Logout
+        </a>
+      </a>
+    </nav>
+  </aside>
+
+  <!-- ═══════════════════════════════════════
+       MAIN CONTENT
+  ═══════════════════════════════════════ -->
+  <div class="main-card">
+
+    <!-- Page Header — full width biru -->
+    <header class="page-header">
+      <h1 class="page-title">Laporan Barang Keluar</h1>
+      <p class="page-description">Kelola dan pantau data barang keluar</p>
+    </header>
+
+    <!-- ✅ page-content membungkus semua konten di bawah header -->
+    <div class="page-content">
+
+      <!-- ─────────────────────────────────
+           CONTROLS: Search + Tanggal + Export
+      ───────────────────────────────── -->
+      <section class="controls-section">
+        <form method="GET" action="{{ url_for('laporan.output_barang') }}" class="controls-form">
+
+          <div class="search-container">
+            <label for="search-input" class="visually-hidden">Cari barang</label>
+            <span class="search-icon" aria-hidden="true">
+              <i class="fas fa-search"></i>
+            </span>
+            <input
+              type="search"
+              id="search-input"
+              name="q"
+              class="search-input"
+              placeholder="Cari nama barang, kategori, atau kasir..."
+              value="{{ request.args.get('q', '') }}"
+            />
+          </div>
+
+          <div class="date-filters">
+            <label for="date-from" class="visually-hidden">Tanggal dari</label>
+            <input type="date" id="date-from" name="date_from" class="date-input"
+                   value="{{ request.args.get('date_from', '') }}" />
+            <span class="date-separator">-</span>
+            <label for="date-to" class="visually-hidden">Tanggal sampai</label>
+            <input type="date" id="date-to" name="date_to" class="date-input"
+                   value="{{ request.args.get('date_to', '') }}" />
+          </div>
+
+          <button class="btn-primary" type="submit">
+            <i class="fas fa-search"></i> Cari
+          </button>
+
+        </form>
+
+        <a href="{{ url_for('laporan.export_output_barang',
+                    q=request.args.get('q',''),
+                    date_from=request.args.get('date_from',''),
+                    date_to=request.args.get('date_to','')) }}"
+           class="export-button">
+          <span class="export-icon"><i class="fas fa-download"></i></span>
+          <span class="export-text">Export Data</span>
+        </a>
+      </section>
+
+      <!-- ─────────────────────────────────
+           SUMMARY CARDS
+      ───────────────────────────────── -->
+      <section class="summary-section" aria-label="Ringkasan data">
+
+        <div class="summary-item">
+          <i class="fas fa-boxes" style="color:var(--primary); font-size:1.2rem;"></i>
+          <span class="summary-label">Total Data:</span>
+          <span class="summary-value">{{ total_barang or 0 }}</span>
+          <span class="summary-unit">{{ satuan_barang or 'item' }}</span>
+        </div>
+
+        <div class="summary-item">
+          <i class="fas fa-money-bill-wave" style="color:var(--success); font-size:1.2rem;"></i>
+          <span class="summary-label">Total Nilai:</span>
+          <span class="summary-value">
+            Rp {{ "{:,.0f}".format(total_nilai) if total_nilai else '0' }}
+          </span>
+        </div>
+
+      </section>
+
+      <!-- ─────────────────────────────────
+           TABEL DATA
+      ───────────────────────────────── -->
+      <section class="table-section">
+        <div class="table-container" role="region"
+             aria-label="Tabel data barang keluar" tabindex="0">
+
+          <div class="table-header">
+            <div class="table-header-cell">Tanggal</div>
+            <div class="table-header-cell">Nama Barang</div>
+            <div class="table-header-cell">Kategori</div>
+            <div class="table-header-cell">Jumlah</div>
+            <div class="table-header-cell">Harga Satuan</div>
+            <div class="table-header-cell">Total Harga</div>
+            <div class="table-header-cell">Kasir</div>
+          </div>
+
+          <div class="table-body">
+            {% if data_barang %}
+              {% for item in data_barang %}
+              <div class="table-row">
+                <div class="table-cell">
+                  <span class="cell-text">
+                    {{ item.tanggal.strftime('%d/%m/%Y') if item.tanggal else '-' }}
+                  </span>
+                </div>
+                <div class="table-cell">
+                  <span class="cell-text cell-text-medium">{{ item.nama_barang or '-' }}</span>
+                </div>
+                <div class="table-cell">
+                  <span class="category-badge">{{ item.kategori or '-' }}</span>
+                </div>
+                <div class="table-cell">
+                  <span class="cell-text cell-text-bold">{{ item.jumlah or 0 }}</span>
+                </div>
+                <div class="table-cell">
+                  <span class="cell-text">
+                    Rp {{ "{:,.0f}".format(item.harga_satuan) if item.harga_satuan else '0' }}
+                  </span>
+                </div>
+                <div class="table-cell">
+                  <span class="cell-text cell-text-total">
+                    Rp {{ "{:,.0f}".format(item.total_harga) if item.total_harga else '0' }}
+                  </span>
+                </div>
+                <div class="table-cell">
+                  <span class="cashier-avatar">
+                    {{ item.nama_kasir[:2].upper() if item.nama_kasir else '??' }}
+                  </span>
+                  <span class="cell-text">{{ item.nama_kasir or '-' }}</span>
+                </div>
+              </div>
+              {% endfor %}
+            {% else %}
+              <div class="table-row empty-state">
+                <div class="table-cell">
+                  <i class="fas fa-inbox"></i>
+                  <p>Tidak ada data barang keluar.</p>
+                </div>
+              </div>
+            {% endif %}
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ─────────────────────────────────
+           PAGINATION
+      ───────────────────────────────── -->
+      <footer class="pagination-section">
+        <div class="pagination-info">
+          <span class="pagination-text">Menampilkan</span>
+          <span class="pagination-number">
+            {{ ((page - 1) * per_page) + 1 if data_barang else 0 }}
+          </span>
+          <span class="pagination-text">-</span>
+          <span class="pagination-number">{{ [page * per_page, total_barang] | min }}</span>
+          <span class="pagination-text">dari</span>
+          <span class="pagination-number">{{ total_barang or 0 }}</span>
+          <span class="pagination-text">data</span>
+        </div>
+
+        <nav class="pagination-controls" aria-label="Navigasi halaman">
+          <button class="pagination-button"
+                  type="button"
+                  onclick="changePage({{ page - 1 | int }})"
+                  aria-label="Halaman sebelumnya"
+                  {% if page <= 1 %}disabled{% endif %}>
+            &laquo;
+          </button>
+
+          {% for p in range(1, total_pages + 1) %}
+          <button class="pagination-button {% if p == page %}pagination-button-active{% endif %}"
+                  type="button"
+                  onclick="changePage({{ p | int }})"
+                  aria-label="Halaman {{ p }}"
+                  {% if p == page %}aria-current="page"{% endif %}>
+            {{ p }}
+          </button>
+          {% endfor %}
+
+          <button class="pagination-button"
+                  type="button"
+                  onclick="changePage({{ (page + 1) | int }})"
+                  aria-label="Halaman berikutnya"
+                  {% if page >= total_pages %}disabled{% endif %}>
+            &raquo;
+          </button>
+        </nav>
+      </footer>
+
+    </div><!-- /.page-content -->
+  </div><!-- /.main-card -->
+</div><!-- /.generated-design -->
+
+
+<!-- ═══════════════════════════════════════
+     MODAL LOGOUT
+═══════════════════════════════════════ -->
+<div class="modal fade" id="logoutmodal" tabindex="-1"
+     aria-labelledby="logoutmodalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="logoutmodalLabel">Logout</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">Apakah anda yakin ingin logout?</div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+        <a href="{{ url_for('auth.logout') }}" class="btn btn-primary">OK</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════
+     SCRIPTS
+═══════════════════════════════════════ -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<script src="{{ url_for('static', filename='js/laporan.js') }}"></script>
+
+</body>
+</html>
