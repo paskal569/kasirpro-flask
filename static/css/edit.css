@@ -1,0 +1,178 @@
+body {
+        font-family: 'Inter', sans-serif;
+        background: #F9FAFB;
+    }
+    
+    form {
+        width: 500px;
+        background: white;
+        box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.12);
+        border-radius: 12px;
+        border: 1px solid #E5E7EB;
+        padding: 24px;
+        margin: 20px auto;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    label {
+        color: #374151;
+        font-size: 14px;
+        font-family: 'Inter', sans-serif;
+        font-weight: 500;
+        margin-bottom: 6px;
+    }
+    
+    input[type="text"], select {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #E5E7EB;
+        border-radius: 8px;
+        font-size: 14px;
+        font-family: 'Inter', sans-serif;
+    }
+    
+    input[type="text"]:focus, select:focus {
+        outline: none;
+        border-color: #3A56D4;
+    }
+  .page-header {
+  grid-area: header;
+  background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%);
+  color: #fff;
+  padding: 28px 32px;
+  animation: content-fade 0.4s ease-out both;
+}
+
+.page-header__title {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0 0 4px;
+}
+
+.page-header__subtitle {
+  font-size: 14px;
+  opacity: 0.8;
+  margin: 0;
+}
+
+/* ── Page Content ──────────────────────────────────── */
+.page-content {
+  grid-area: main;
+  padding: 28px 32px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  animation: content-fade 0.5s ease-out both;
+}
+
+@keyframes content-fade {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+    .selection-group {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .selection-label {
+        color: #374151;
+        font-size: 14px;
+        font-family: 'Inter', sans-serif;
+        font-weight: 500;
+    }
+    
+    .selection-options {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+    
+    .color-option {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        border: 2px solid #E5E7EB;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .color-option:hover {
+        transform: scale(1.05);
+        border-color: #3A56D4;
+    }
+    
+    .color-option.selected {
+        border-color: #3A56D4;
+        box-shadow: 0 0 0 2px rgba(58, 86, 212, 0.2);
+    }
+    
+    .icon-option {
+        width: 40px;
+        height: 40px;
+        background: #F3F4F6;
+        border-radius: 8px;
+        border: 2px solid #E5E7EB;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+        color: #6B7280;
+        font-size: 18px;
+    }
+    
+    .icon-option:hover {
+        transform: scale(1.05);
+        border-color: #3A56D4;
+        background: #E5E7EB;
+    }
+    
+    .icon-option.selected {
+        border-color: #3A56D4;
+        background: #DBEAFE;
+        color: #3A56D4;
+        box-shadow: 0 0 0 2px rgba(58, 86, 212, 0.2);
+    }
+    
+    .button-group {
+        display: flex;
+        gap: 12px;
+        margin-top: 8px;
+    }
+    
+    button[type="submit"], button[type="button"] {
+        flex: 1;
+        height: 43px;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-family: 'Inter', sans-serif;
+    }
+    
+    button[type="submit"] {
+        background: #3A56D4;
+        border: 1px solid #3A56D4;
+        color: white;
+    }
+    
+    button[type="submit"]:hover {
+        background: #2C44B0;
+        border-color: #2C44B0;
+    }
+    
+    button[type="button"] {
+        background: white;
+        border: 1px solid #E5E7EB;
+        color: #374151;
+    }
+    
+    button[type="button"]:hover {
+        background: #F9FAFB;
+        border-color: #D1D5DB;
+    }

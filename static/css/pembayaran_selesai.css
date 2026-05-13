@@ -1,0 +1,261 @@
+ :root {
+      --green-deep:   #065F46;
+      --green-mid:    #059669;
+      --green-light:  #D1FAE5;
+      --green-pale:   #ECFDF5;
+      --blue-main:    #3A56D4;
+      --blue-hover:   #2d44b8;
+      --gray-text:    #6B7280;
+      --gray-border:  #E5E7EB;
+      --gray-bg:      #F3F4F6;
+      --white:        #FFFFFF;
+      --shadow:       0 4px 24px rgba(0,0,0,0.10);
+      --radius-card:  16px;
+      --radius-btn:   8px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: linear-gradient(135deg, #e8f5e9 0%, #f0f4ff 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      padding: 24px 16px;
+    }
+
+    /* ─── Card ─────────────────────────────────────────────── */
+    .card {
+      background: var(--white);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow);
+      width: 100%;
+      max-width: 480px;
+      padding: 36px 32px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      animation: slideUp .45s cubic-bezier(.22,1,.36,1) both;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(28px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ─── Header bar ────────────────────────────────────────── */
+    .card-header-bar {
+      font-weight: 600;
+      font-size: 16px;
+      color: #1F2937;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--gray-border);
+      margin-bottom: 28px;
+      letter-spacing: -.01em;
+    }
+
+    /* ─── Success badge ─────────────────────────────────────── */
+    .success-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+
+    .success-icon {
+      width: 72px;
+      height: 72px;
+      background: var(--green-light);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: popIn .5s .2s cubic-bezier(.34,1.56,.64,1) both;
+    }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(.5); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    .success-icon i {
+      font-size: 32px;
+      color: var(--green-mid);
+    }
+
+    .success-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 22px;
+      color: var(--green-deep);
+      text-align: center;
+      letter-spacing: -.02em;
+    }
+
+    .success-sub {
+      font-size: 13px;
+      color: var(--gray-text);
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    /* ─── Detail box ────────────────────────────────────────── */
+    .detail-box {
+      background: #F8F9FA;
+      border: 1px solid #E5E7EB;
+      border-radius: 10px;
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .detail-row .label {
+      font-size: 12px;
+      color: var(--gray-text);
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .detail-row .value {
+      font-size: 13px;
+      color: #1F2937;
+      font-weight: 600;
+      text-align: right;
+    }
+
+    .detail-divider {
+      border: none;
+      border-top: 1px dashed #A7F3D0;
+    }
+
+    .detail-row.total .value {
+      font-size: 15px;
+      color: #3A56D4;
+    }
+
+    /* ─── Email note ────────────────────────────────────────── */
+    .email-note {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      background: #EFF6FF;
+      border: 1px solid #BFDBFE;
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-bottom: 24px;
+    }
+
+    .email-note i {
+      color: #3B82F6;
+      font-size: 14px;
+      margin-top: 1px;
+      flex-shrink: 0;
+    }
+
+    .email-note span {
+      font-size: 12px;
+      color: #1e40af;
+      line-height: 1.6;
+    }
+
+    /* ─── Buttons ───────────────────────────────────────────── */
+    .btn-group-custom {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .btn-primary-custom {
+      width: 100%;
+      padding: 13px;
+      background: var(--blue-main);
+      color: var(--white);
+      border: none;
+      border-radius: var(--radius-btn);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background .2s, transform .15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-primary-custom:hover {
+      background: var(--blue-hover);
+      transform: translateY(-1px);
+    }
+
+    .btn-outline-custom {
+      width: 100%;
+      padding: 11px;
+      background: transparent;
+      color: var(--blue-main);
+      border: 1.5px solid var(--blue-main);
+      border-radius: var(--radius-btn);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background .2s, color .2s, transform .15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-outline-custom:hover {
+      background: #EEF2FF;
+      transform: translateY(-1px);
+    }
+
+    .btn-ghost-custom {
+      width: 100%;
+      padding: 10px;
+      background: transparent;
+      color: var(--gray-text);
+      border: none;
+      border-radius: var(--radius-btn);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 500;
+      font-size: 13px;
+      cursor: pointer;
+      transition: color .2s, background .2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-ghost-custom:hover {
+      background: var(--gray-bg);
+      color: #374151;
+    }
+
+    @media (max-width: 500px) {
+      .card { padding: 28px 20px 24px; }
+    }
+
+    /*// asimasi pop up modal*/
+    .modal-content {
+      border-radius: 12px;
+      padding: 24px;
+    }
+    @media (max-width: 500px) {
+      .modal-content {
+        padding: 12px;
+      }
+    }

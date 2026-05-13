@@ -1,0 +1,165 @@
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Inter',sans-serif;
+}
+
+body{
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+background:radial-gradient(circle at top,#1e293b,#020617);
+color:#fff;
+overflow:hidden;
+}
+
+/* background animation */
+body::before{
+content:"";
+position:absolute;
+width:400px;
+height:400px;
+background:#38bdf8;
+filter:blur(180px);
+opacity:.25;
+animation:float 8s ease-in-out infinite;
+}
+
+@keyframes float{
+0%,100%{transform:translateY(0);}
+50%{transform:translateY(-40px);}
+}
+
+.container{
+z-index:2;
+}
+
+.loading-konfirmasi{
+background:rgba(255,255,255,0.05);
+padding:50px 60px;
+border-radius:18px;
+backdrop-filter:blur(20px);
+box-shadow:0 20px 60px rgba(0,0,0,.4);
+text-align:center;
+animation:fadeIn .6s ease;
+}
+
+/* ORBIT LOADER */
+.loading{
+position:relative;
+width:70px;
+height:70px;
+margin:0 auto 25px;
+}
+
+.loading::before,
+.loading::after{
+content:"";
+position:absolute;
+inset:0;
+border-radius:50%;
+border:2px solid transparent;
+}
+
+.loading::before{
+border-top-color:#38bdf8;
+animation:orbit 1.2s linear infinite;
+}
+
+.loading::after{
+border-bottom-color:#22c55e;
+animation:orbitReverse 1.6s linear infinite;
+}
+
+@keyframes orbit{
+to{transform:rotate(360deg);}
+}
+
+@keyframes orbitReverse{
+to{transform:rotate(-360deg);}
+}
+
+@keyframes fadeIn{
+from{opacity:0;transform:translateY(20px);}
+to{opacity:1;transform:translateY(0);}
+}
+
+.loading-konfirmasi p{
+font-size:14px;
+font-weight:500;
+letter-spacing:1.5px;
+text-transform:uppercase;
+color:#cbd5f5;
+position:relative;
+display:inline-block;
+padding:0 20px;
+}
+
+.loading-konfirmasi p::before,
+.loading-konfirmasi p::after{
+content:"";
+position:absolute;
+top:50%;
+width:40px;
+height:1px;
+background:rgba(255,255,255,.3);
+}
+
+.loading-konfirmasi p::before{
+right:100%;
+margin-right:12px;
+}
+
+.loading-konfirmasi p::after{
+left:100%;
+margin-left:12px;
+}
+
+@media(max-width:500px){
+.loading-konfirmasi{
+padding:35px;
+}
+
+.loading{
+width:55px;
+height:55px;
+}
+
+.loading-konfirmasi p{
+font-size:12px;
+}
+
+}
+
+#loadingOverlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 9999;
+
+    /* ambil style dari body kamu */
+    background: radial-gradient(circle at top, #1e293b, #020617);
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+/* background blur animation saat overlay aktif */
+#loadingOverlay::before {
+    content: "";
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    background: #38bdf8;
+    filter: blur(180px);
+    opacity: .25;
+    animation: float 8s ease-in-out infinite;
+}
+
+/* saat aktif, pakai flex */
+#loadingOverlay.active {
+    display: flex;
+}

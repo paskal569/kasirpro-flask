@@ -1,0 +1,69 @@
+/* ── LAYOUT ── */
+    body { margin: 0; font-family: 'Inter', system-ui, sans-serif; background: #f4f6f9; }
+    .page { display: grid; grid-template-columns: 220px 1fr; min-height: 100vh; }
+
+    /* ── SIDEBAR ── */
+    .sidebar { background: #1e293b; color: #94a3b8; padding: 28px 22px; position: sticky; top: 0; height: 100vh; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 16px; margin-bottom: 26px; color: #fff; }
+    .brand .dot { width: 12px; height: 12px; border-radius: 50%; background: linear-gradient(135deg, #60a5fa, #2563eb); flex-shrink: 0; }
+    .nav { display: flex; flex-direction: column; gap: 4px; }
+    .nav a { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; color: #94a3b8; text-decoration: none; font-size: 14px; transition: all 0.2s; }
+    .nav a:hover { background: rgba(96,165,250,0.15); color: #fff; transform: translateX(4px); }
+    .nav a.active { background: rgba(59,130,246,0.25); color: #60a5fa; transform: translateX(4px); }
+
+    /* ── MAIN ── */
+    .main { padding: 30px 34px 48px; overflow-y: auto; }
+    .pengaturan-body { display: flex; gap: 16px; align-items: flex-start; }
+
+    /* ── PENG SIDEBAR ── */
+    .peng-sidebar { width: 210px; flex-shrink: 0; background: #fff; border: 1px solid #E5E7EB; border-radius: 12px; padding: 8px 0; }
+    .peng-nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 16px; font-size: 14px; color: #6B7280; text-decoration: none; transition: background 0.15s, color 0.15s; }
+    .peng-nav-item:hover { background: #F8F9FA; color: #1F2937; }
+    .peng-nav-item.active { background: #EFF6FF; color: #3A56D4; font-weight: 600; }
+
+    /* ── KONTEN UTAMA ── */
+    .peng-content { flex: 1; display: flex; flex-direction: column; gap: 20px; }
+
+    /* ── CARDS STATS ── */
+    .cards { display: flex; gap: 16px; }
+    .stat-card { background: white; padding: 20px; border-radius: 10px; flex: 1; border: 1px solid #E5E7EB; }
+    .stat-card h3 { font-size: 13px; color: #6B7280; margin: 0 0 8px; }
+    .stat-card h1 { font-size: 24px; font-weight: 700; margin: 0 0 4px; color: #1F2937; }
+    .stat-card p  { font-size: 12px; color: #9CA3AF; margin: 0; }
+    .stat-card.green { background: #D1FAE5; border-color: #A7F3D0; }
+    .stat-card.yellow { background: #FEF3C7; border-color: #FDE68A; }
+    .stat-card.red { background: #FEE2E2; border-color: #FECACA; }
+
+    /* ── BOX ── */
+    .box { background: white; border-radius: 10px; border: 1px solid #E5E7EB; overflow: hidden; }
+    .box-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid #E5E7EB; }
+    .box-header h2 { margin: 0; font-size: 15px; font-weight: 600; color: #1F2937; }
+    .box-body { padding: 20px; }
+    .btn-add { background: #3A56D4; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-size: 13px; cursor: pointer; }
+    .btn-add:hover { background: #2c44b0; }
+
+    /* ── PRINTER ITEM ── */
+    .printer-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; border: 1px solid #E5E7EB; margin-bottom: 10px; border-radius: 8px; }
+    .printer-item:last-child { margin-bottom: 0; }
+    .printer-item.active { border-color: #3A56D4; background: #F0F4FF; }
+    .printer-item h4 { margin: 0 0 4px; font-size: 14px; font-weight: 600; }
+    .printer-item p  { margin: 2px 0; font-size: 12px; color: #6B7280; }
+    .badge-default { background: #DBEAFE; color: #1D4ED8; padding: 2px 8px; font-size: 10px; border-radius: 6px; margin-left: 6px; }
+    .status { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+    .status.online  { background: #D1FAE5; color: #065F46; }
+    .status.offline { background: #FEE2E2; color: #991B1B; }
+
+    /* ── FORM SETTINGS ── */
+    .form-settings { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 16px; }
+    .form-settings label { display: block; font-size: 13px; color: #374151; margin-bottom: 6px; font-weight: 500; }
+    .form-settings input { width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid #D1D5DB; font-size: 14px; box-sizing: border-box; }
+    .toggle-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #F3F4F6; }
+    .toggle-row:last-of-type { border-bottom: none; }
+    .toggle-row label { font-size: 14px; color: #374151; }
+
+    /* ── ACTIONS ── */
+    .box-actions { display: flex; gap: 10px; margin-top: 20px; }
+    .btn-save   { background: #3A56D4; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-size: 14px; cursor: pointer; }
+    .btn-save:hover { background: #2c44b0; }
+    .btn-danger { background: white; color: #EF4444; border: 1px solid #EF4444; padding: 10px 20px; border-radius: 6px; font-size: 14px; cursor: pointer; }
+    .btn-danger:hover { background: #FEE2E2; }
