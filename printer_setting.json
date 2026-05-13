@@ -1,9 +1,0 @@
-{
-  "port_koneksi": "USB001",
-  "baud_rate": "9600",
-  "lebar_kertas": "80mm",
-  "karakter_per_baris": "42",
-  "auto_cut": true,
-  "buka_laci": true,
-  "bunyi_cetak": false
-}
