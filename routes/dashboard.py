@@ -1,0 +1,308 @@
+from flask import Blueprint, redirect, render_template, jsonify, request, send_file, url_for, session, flash
+from sqlalchemy import func
+from datetime import datetime, timedelta
+
+from models.base import db
+from models.produk import Produk
+from models.kategori import Kategori
+from models.item_transaksi import ItemTransaksi
+from models.transaksi import transaksi as transaksi
+
+from routes.auth import login_required
+
+
+dashboard_bp = Blueprint('dashboard', __name__)
+
+
+# ─────────────────────────────────────────
+# BEFORE REQUEST
+# ─────────────────────────────────────────
+@dashboard_bp.before_request
+def before_request():
+    if 'user_id' not in session:
+        return redirect(url_for('auth.login'))
+
+
+# ─────────────────────────────────────────
+# HELPER — stok per kategori
+# ─────────────────────────────────────────
+def stok_kategori(nama_kategori):
+    return db.session.query(func.sum(Produk.stok))\
+        .join(Kategori, Produk.kategori_id == Kategori.id)\
+        .filter(
+            Kategori.nama.ilike(f'%{nama_kategori}%'),
+            Produk.is_active == True
+        ).scalar() or 0
+
+
+# ─────────────────────────────────────────
+# HELPER — range waktu hari ini (WIB)
+# ─────────────────────────────────────────
+def get_range_hari_ini():
+    now_wib = datetime.utcnow() + timedelta(hours=7)
+    today   = now_wib.date()
+    start   = datetime.combine(today, datetime.min.time()) - timedelta(hours=7)
+    end     = datetime.combine(today, datetime.max.time()) - timedelta(hours=7)
+    return start, end
+
+
+# ─────────────────────────────────────────
+# HELPER — statistik hari ini (stats atas)
+# ─────────────────────────────────────────
+def get_stats_hari_ini():
+    start, end = get_range_hari_ini()
+
+    omset = db.session.query(func.sum(transaksi.total)).filter(
+        transaksi.created_at >= start,
+        transaksi.created_at <= end,
+        transaksi.status == 'selesai'
+    ).scalar() or 0
+
+    jumlah = transaksi.query.filter(
+        transaksi.created_at >= start,
+        transaksi.created_at <= end,
+        transaksi.status == 'selesai'
+    ).count()
+
+    barang = db.session.query(func.sum(ItemTransaksi.qty))\
+        .join(transaksi, ItemTransaksi.transaksi_id == transaksi.id)\
+        .filter(
+            transaksi.created_at >= start,
+            transaksi.created_at <= end,
+            transaksi.status == 'selesai'
+        ).scalar() or 0
+
+    stok_menipis = Produk.query.filter(
+        Produk.stok <= Produk.stok_minimum,
+        Produk.is_active == True
+    ).count()
+
+    return {
+        'omset_hari_ini'    : int(omset),
+        'transaksi_hari_ini': jumlah,
+        'barang_terjual'    : int(barang),
+        'stok_menipis'      : stok_menipis
+    }
+
+
+# ─────────────────────────────────────────
+# HELPER — statistik card bawah
+# ─────────────────────────────────────────
+def get_stats_card():
+    start, end = get_range_hari_ini()
+
+    # ── Laba Rugi ──
+    omset = db.session.query(func.sum(transaksi.total)).filter(
+        transaksi.created_at >= start,
+        transaksi.created_at <= end,
+        transaksi.status == 'selesai'
+    ).scalar() or 0
+
+    # Gunakan harga_beli jika ada, fallback 0 jika kolom tidak ada
+    try:
+        biaya = db.session.query(
+            func.sum(ItemTransaksi.qty * Produk.harga_beli)
+        ).join(transaksi, ItemTransaksi.transaksi_id == transaksi.id)\
+         .join(Produk, ItemTransaksi.produk_id == Produk.id)\
+         .filter(
+            transaksi.created_at >= start,
+            transaksi.created_at <= end,
+            transaksi.status == 'selesai'
+         ).scalar() or 0
+    except Exception:
+        biaya = 0
+
+    laba_rugi = int(omset) - int(biaya)
+
+    # ── Stok Minuman & Snack ──
+    sisa_stok_minuman = int(stok_kategori('Minuman'))
+    stok_snack        = int(stok_kategori('Snack'))
+
+    # ── Kesiapan Berkas: produk aktif dengan stok > minimum ──
+    kesiapan_berkas = Produk.query.filter(
+        Produk.stok > Produk.stok_minimum,
+        Produk.is_active == True
+    ).count()
+
+    return {
+        'laba_rugi'        : laba_rugi,
+        'sisa_stok_minuman': sisa_stok_minuman,
+        'stok_snack'       : stok_snack,
+        'kesiapan_berkas'  : kesiapan_berkas
+    }
+
+
+# ─────────────────────────────────────────
+# RESET DATA HARI INI
+# ─────────────────────────────────────────
+@dashboard_bp.route('/api/reset', methods=['POST'])
+@login_required
+def reset_data():
+    try:
+        start, end = get_range_hari_ini()
+        transaksi.query.filter(
+            transaksi.created_at >= start,
+            transaksi.created_at <= end
+        ).delete()
+        db.session.commit()
+        return jsonify({'message': 'Data hari ini berhasil direset'})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'message': str(e)}), 500
+
+
+# ─────────────────────────────────────────
+# HALAMAN DASHBOARD
+# ─────────────────────────────────────────
+@dashboard_bp.route('/')
+@login_required
+def index():
+    stats = get_stats_hari_ini()
+    cards = get_stats_card()
+
+    # ── Produk favorit (top 5 terjual) ──
+    produk_favorit = db.session.query(
+        Produk.nama,
+        Kategori.nama.label('kategori'),
+        func.sum(ItemTransaksi.qty).label('terjual')
+    ).join(ItemTransaksi, Produk.id == ItemTransaksi.produk_id)\
+     .join(Kategori, Produk.kategori_id == Kategori.id)\
+     .group_by(Produk.id, Produk.nama, Kategori.nama)\
+     .order_by(func.sum(ItemTransaksi.qty).desc())\
+     .limit(5).all()
+
+    # ── Kategori untuk dropdown kalkulator ──
+    kategori = Kategori.query.all()
+
+    return render_template('dashboard.html',
+        # stats atas
+        omset             = stats['omset_hari_ini'],
+        jumlah_transaksi  = stats['transaksi_hari_ini'],
+        barang_terjual    = stats['barang_terjual'],
+        stok_menipis      = stats['stok_menipis'],
+        # stats bawah — nama sesuai variabel di HTML
+        laba_rugi         = cards['laba_rugi'],
+        sisa_stok_minuman = cards['sisa_stok_minuman'],
+        stok_snack        = cards['stok_snack'],
+        kesiapan_berkas   = cards['kesiapan_berkas'],
+        # tabel & dropdown
+        produk_favorit    = produk_favorit,
+        kategori          = kategori
+    )
+
+
+# ─────────────────────────────────────────
+# TAMBAH TRANSAKSI
+# ─────────────────────────────────────────
+@dashboard_bp.route('/transaksi-tambah', methods=['POST'])
+@login_required
+def tambah_transaksi():
+    fitur      = request.form.get('fitur') == 'true'
+    item_qty   = request.form.getlist('item_qty[]')
+    item_price = request.form.getlist('item_harga[]')
+
+    total = 0
+    for qty, harga in zip(item_qty, item_price):
+        if qty.isdigit() and harga.isdigit():
+            total += int(qty) * int(harga)
+
+    catatan = request.form.get('catatan')
+
+    transaksi_baru = transaksi(
+        total   = total,
+        fitur   = fitur,
+        catatan = catatan,
+        status  = 'selesai'
+    )
+    db.session.add(transaksi_baru)
+    db.session.commit()
+
+    flash('Transaksi berhasil ditambahkan', 'success')
+    return redirect(url_for('dashboard.index'))
+
+
+# ─────────────────────────────────────────
+# LABA RUGI (halaman tersendiri)
+# ─────────────────────────────────────────
+@dashboard_bp.route('/laba-rugi')
+@login_required
+def laba_rugi():
+    start, end = get_range_hari_ini()
+
+    omset = db.session.query(func.sum(transaksi.total)).filter(
+        transaksi.created_at >= start,
+        transaksi.created_at <= end,
+        transaksi.status == 'selesai'
+    ).scalar() or 0
+
+    try:
+        biaya = db.session.query(
+            func.sum(ItemTransaksi.qty * Produk.harga_beli)
+        ).join(transaksi, ItemTransaksi.transaksi_id == transaksi.id)\
+         .join(Produk, ItemTransaksi.produk_id == Produk.id)\
+         .filter(
+            transaksi.created_at >= start,
+            transaksi.created_at <= end,
+            transaksi.status == 'selesai'
+         ).scalar() or 0
+    except Exception:
+        biaya = 0
+
+    return render_template('laba_rugi.html',
+        omset = int(omset),
+        biaya = int(biaya),
+        laba  = int(omset) - int(biaya)
+    )
+
+
+# ─────────────────────────────────────────
+# STOK MINUMAN
+# ─────────────────────────────────────────
+@dashboard_bp.route('/stok/minuman')
+@login_required
+def stok_minuman():
+    minuman_stok = stok_kategori('Minuman')
+    return render_template('stok_minuman.html', stok=minuman_stok)
+
+
+# ─────────────────────────────────────────
+# FITUR TAMBAHAN
+# ─────────────────────────────────────────
+@dashboard_bp.route('/fitur_tambahan/memo')
+@login_required
+def memo():
+    return render_template('fitur_tambahan/memo.html')
+
+@dashboard_bp.route('/fitur_tambahan/kalender')
+@login_required
+def kalender():
+    return render_template('fitur_tambahan/kalender.html')
+
+@dashboard_bp.route('/fitur_tambahan/jam')
+@login_required
+def jam():
+    return render_template('fitur_tambahan/jam.html')
+
+
+# ─────────────────────────────────────────
+# ALIAS ROUTE
+# ─────────────────────────────────────────
+@dashboard_bp.route('/memo')
+def memo_alias():
+    return redirect(url_for('dashboard.memo'))
+
+@dashboard_bp.route('/kalender')
+def kalender_alias():
+    return redirect(url_for('dashboard.kalender'))
+
+@dashboard_bp.route('/jam')
+def jam_alias():
+    return redirect(url_for('dashboard.jam'))
+
+@dashboard_bp.route('/download')
+@login_required
+def download_laporan():
+    return send_file(
+        'laporan_kasirpro.pdf',
+        as_attachment=True
+    )
