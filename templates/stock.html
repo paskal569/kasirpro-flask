@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stock — KasirPro</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/stock.css') }}">
+</head>
+<body>
+
+  <!-- FLASH MESSAGES -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flash-wrapper">
+        {% for category, message in messages %}
+          <div class="flash-item flash-item--{{ category }}">
+            <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'error' %}exclamation-circle{% elif category == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %}"></i>
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <div class="app">
+
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar">
+
+      <div class="brand">
+        <span class="brand-name">KasirPro</span>
+      </div>
+
+      <nav class="nav">
+        <a href="{{ url_for('dashboard.index') }}" class="nav-link">
+          <i class="fas fa-home fa-fw"></i> Dashboard
+        </a>
+        <a href="{{ url_for('pembayaran.pembayaran') }}" class="nav-link">
+          <i class="fas fa-money-bill fa-fw"></i> Pembayaran
+        </a>
+        <a href="{{ url_for('laporan.output_barang') }}" class="nav-link">
+          <i class="fas fa-chart-bar fa-fw"></i> Laporan
+        </a>
+        <a href="{{ url_for('kalkulator.halaman_kalkulator') }}" class="nav-link">
+          <i class="fas fa-calculator fa-fw"></i> Kalkulator
+        </a>
+        <a href="{{ url_for('input_barang.input_barang') }}" class="nav-link">
+          <i class="fas fa-plus-circle fa-fw"></i> Input Barang
+        </a>
+        <a href="{{ url_for('stock.halaman_stock') }}" class="nav-link active">
+          <i class="fas fa-boxes fa-fw"></i> Stock
+        </a>
+        <a href="{{ url_for('kategori.daftar_kategori') }}" class="nav-link">
+          <i class="fas fa-tags fa-fw"></i> Kategori
+        </a>
+        <a href="{{ url_for('transaksi.daftar_transaksi') }}" class="nav-link">
+          <i class="fas fa-exchange-alt fa-fw"></i> Transaksi
+        </a>
+        <a href="{{ url_for('pelanggan.halaman_pelanggan') }}" class="nav-link">
+          <i class="fas fa-users fa-fw"></i> Pelanggan
+        </a>
+        <a href="{{ url_for('pengaturan.pengaturan') }}" class="nav-link">
+          <i class="fas fa-cog fa-fw"></i> Pengaturan
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <a href="{{ url_for('auth.logout') }}" class="nav-link logout">
+          <i class="fas fa-sign-out-alt fa-fw"></i> Logout
+        </a>
+      </div>
+
+    </aside>
+
+    <!-- ===== MAIN ===== -->
+    <div class="main">
+
+      <!-- Page Header -->
+      <header class="page-header">
+        <div class="page-header__inner">
+          <div class="page-header__text">
+            <h1>Manajemen Stok Barang</h1>
+            <p>Pantau ketersediaan stok barang berdasarkan kategori</p>
+          </div>
+          <div class="page-header__badge">
+            <i class="fas fa-clock"></i>
+            Live Data
+          </div>
+        </div>
+      </header>
+
+      <!-- Page Content -->
+      <main class="page-content">
+
+        <!-- Summary Cards -->
+        <section class="summary-grid">
+          <div class="summary-card summary-card--total">
+            <div class="summary-card__icon"><i class="fas fa-box"></i></div>
+            <div>
+              <p class="summary-card__label">Total Produk</p>
+              <p class="summary-card__value">{{ total_produk }}</p>
+            </div>
+          </div>
+          <div class="summary-card summary-card--tersedia">
+            <div class="summary-card__icon"><i class="fas fa-check-circle"></i></div>
+            <div>
+              <p class="summary-card__label">Stok Tersedia</p>
+              <p class="summary-card__value">{{ stok_tersedia }}</p>
+            </div>
+          </div>
+          <div class="summary-card summary-card--rendah">
+            <div class="summary-card__icon"><i class="fas fa-exclamation-triangle"></i></div>
+            <div>
+              <p class="summary-card__label">Stok Rendah</p>
+              <p class="summary-card__value">{{ stok_rendah }}</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Toolbar + Search -->
+        <form method="GET" action="{{ url_for('stock.halaman_stock') }}">
+          <div class="toolbar">
+            <div class="toolbar__search">
+              <i class="fas fa-search toolbar__search-icon"></i>
+              <input
+                type="text"
+                name="search"
+                placeholder="Cari nama barang..."
+                value="{{ request.args.get('search', '') }}"
+              >
+            </div>
+            <div class="toolbar__filter">
+              <select name="kategori">
+                <option value="">Semua Kategori</option>
+                {% for kat in kategoris %}
+                  <option value="{{ kat }}" {% if request.args.get('kategori') == kat %}selected{% endif %}>
+                    {{ kat }}
+                  </option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="toolbar__divider"></div>
+            <button type="submit" class="btn btn--primary">
+              <i class="fas fa-search"></i> Cari
+            </button>
+            <a href="{{ url_for('input_barang.input_barang') }}" class="btn btn--primary">
+              <i class="fas fa-plus"></i> Tambah Barang
+            </a>
+          </div>
+        </form>
+
+        <!-- Data Table -->
+        <div class="table-wrapper">
+          <div class="table-header">
+            <span class="table-header__title">Daftar Barang</span>
+            <span class="table-header__count">{{ barang | length }} item</span>
+          </div>
+
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>No</th>
+                <th>Nama Barang</th>
+                <th>Kategori</th>
+                <th>Stok</th>
+                <th>Harga</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in barang %}
+              <tr data-nama="{{ item.name | lower }}" data-kategori="{{ item.kategori }}">
+                <td><span class="row-num">{{ loop.index }}</span></td>
+                <td><span class="product-name">{{ item.name }}</span></td>
+                <td><span class="badge-kat">{{ item.kategori }}</span></td>
+                <td>
+                  {% if item.quantity == 0 %}
+                    <span class="badge-stok badge-stok--habis">
+                      <i class="fas fa-times-circle"></i> Habis
+                    </span>
+                  {% elif item.quantity <= item.stok_rendah %}
+                    <span class="badge-stok badge-stok--rendah">
+                      <i class="fas fa-exclamation-triangle"></i> {{ item.quantity }}
+                    </span>
+                  {% else %}
+                    <span class="badge-stok badge-stok--ok">
+                      <i class="fas fa-check"></i> {{ item.quantity }}
+                    </span>
+                  {% endif %}
+                </td>
+                <td><span class="price-cell">Rp {{ "{:,.0f}".format(item.price) }}</span></td>
+                <td>
+                  <div class="table-actions">
+                    <!-- Tombol Edit Stok -->
+                    <button
+                      class="btn btn--warning btn--sm btn-open-modal"
+                      type="button"
+                      data-id="{{ item.id }}"
+                      data-nama="{{ item.name }}"
+                      data-stok="{{ item.quantity }}"
+                    >
+                      <i class="fas fa-edit"></i> Edit
+                    </button>
+
+                    <!-- ✅ Tombol Hapus pakai POST form -->
+                    <form
+                      method="POST"
+                      action="{{ url_for('stock.delete_stock', id=item.id) }}"
+                      style="display:inline"
+                      onsubmit="return confirm('Yakin ingin menghapus {{ item.name }}?')"
+                    >
+                      <button type="submit" class="btn btn--danger btn--sm">
+                        <i class="fas fa-trash"></i> Hapus
+                      </button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+              {% else %}
+              <tr>
+                <td colspan="6">
+                  <div class="table-empty">
+                    <i class="fas fa-box-open"></i>
+                    <p>Tidak ada data barang ditemukan</p>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+      </main>
+    </div><!-- /.main -->
+  </div><!-- /.app -->
+
+
+  <!-- ===== MODAL EDIT STOK ===== -->
+  <div class="modal-overlay" id="modalEditStok" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-header__left">
+          <div class="modal-header__icon"><i class="fas fa-boxes"></i></div>
+          <h2 class="modal-header__title" id="modalTitle">Edit Stok Barang</h2>
+          <p class="modal-header__sub" id="modalSubtitle">Perbarui jumlah stok</p>
+        </div>
+        <button class="modal-close" id="modalCloseBtn" aria-label="Tutup modal">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <form id="formEditStok" method="POST" action="">
+        <input type="hidden" name="id" id="inputId">
+
+        <div class="form-group">
+          <label class="form-label" for="inputNama">Nama Barang</label>
+          <input type="text" class="form-input" id="inputNama" name="nama" readonly>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="inputStok">Jumlah Stok Baru</label>
+          <input
+            type="number"
+            class="form-input"
+            id="inputStok"
+            name="stok"
+            min="0"
+            placeholder="Masukkan jumlah stok..."
+            required
+          >
+          <p class="form-hint">Masukkan angka 0 atau lebih untuk stok barang.</p>
+          <span class="form-error">Jumlah stok tidak boleh kosong.</span>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn--cancel" id="modalCancelBtn">
+            <i class="fas fa-times"></i> Batal
+          </button>
+          <button type="submit" class="btn btn--primary">
+            <i class="fas fa-save"></i> Simpan
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- SCRIPTS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+  <script src="{{ url_for('static', filename='js/stock.js') }}"></script>
+
+  <script>
+    // Auto-hide flash
+    setTimeout(function () {
+      document.querySelectorAll('.flash-item').forEach(function (el) {
+        el.style.transition = 'opacity .4s, transform .4s';
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(-8px)';
+        setTimeout(() => el.remove(), 400);
+      });
+    }, 3500);
+  </script>
+
+</body>
+</html>

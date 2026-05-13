@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Kategori</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/edit.css') }}">
+</head>
+<body>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show"
+                     role="alert" style="
+                     position: fixed;
+                     top: 20px;
+                     left: 50%;
+                     transform: translateX(-50%);
+                     z-index: 99999;
+                     min-width: 350px;
+                     max-width: 500px;
+                     box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+                     border-radius: 10px;
+                     text-align: center;">
+                    <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'error' %}exclamation-circle{% elif category == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %} me-2"></i>
+                    <strong>{{ message }}</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <!-- HEADER -->
+    <header class="page-header">
+        <h1 class="page-header__title">Edit Kategori</h1>
+        <p class="page-header__subtitle">Kelola dan pantau semua kategori barang</p>
+    </header>
+
+    <!-- FORM -->
+    <form action="{{ url_for('kategori.edit_kategori', id=kategori.id) }}" method="post">
+        <input type="hidden" name="id" value="{{ kategori.id }}">
+
+        <!-- Nama -->
+        <label for="nama">Nama Kategori:</label>
+        <input type="text" id="nama" name="nama" value="{{ kategori.nama }}" required>
+
+        <!-- Deskripsi -->
+        <label for="deskripsi">Deskripsi:</label>
+        <textarea id="deskripsi" name="deskripsi" rows="3">{{ kategori.deskripsi }}</textarea>
+
+        <!-- ===== WARNA ===== -->
+        <div class="selection-group">
+            <div class="selection-label">Warna</div>
+            <div class="selection-options">
+                <div class="color-option {% if kategori.warna == '#DBEAFE' %}selected{% endif %}" style="background:#DBEAFE" data-color="#DBEAFE" title="Biru Muda"></div>
+                <div class="color-option {% if kategori.warna == '#D1FAE5' %}selected{% endif %}" style="background:#D1FAE5" data-color="#D1FAE5" title="Hijau Muda"></div>
+                <div class="color-option {% if kategori.warna == '#FDE68A' %}selected{% endif %}" style="background:#FDE68A" data-color="#FDE68A" title="Kuning"></div>
+                <div class="color-option {% if kategori.warna == '#FCA5A5' %}selected{% endif %}" style="background:#FCA5A5" data-color="#FCA5A5" title="Merah Muda"></div>
+                <div class="color-option {% if kategori.warna == '#E9D5FF' %}selected{% endif %}" style="background:#E9D5FF" data-color="#E9D5FF" title="Ungu Muda"></div>
+                <div class="color-option {% if kategori.warna == '#FED7AA' %}selected{% endif %}" style="background:#FED7AA" data-color="#FED7AA" title="Oranye Muda"></div>
+                <div class="color-option {% if kategori.warna == '#BAE6FD' %}selected{% endif %}" style="background:#BAE6FD" data-color="#BAE6FD" title="Biru Sky"></div>
+                <div class="color-option {% if kategori.warna == '#F0FDF4' %}selected{% endif %}" style="background:#F0FDF4" data-color="#F0FDF4" title="Hijau Sangat Muda"></div>
+                <div class="color-option {% if kategori.warna == '#F3F4F6' %}selected{% endif %}" style="background:#F3F4F6" data-color="#F3F4F6" title="Abu-abu Muda"></div>
+                <div class="color-option {% if kategori.warna == '#F5F5F5' %}selected{% endif %}" style="background:#F5F5F5" data-color="#F5F5F5" title="Putih Abu"></div>
+            </div>
+        </div>
+
+        <!-- ===== ICON ===== -->
+        <div class="selection-group">
+            <div class="selection-label">Icon</div>
+
+            <!-- Makanan & Minuman -->
+            <small class="icon-group-label">Makanan &amp; Minuman</small>
+            <div class="selection-options">
+                <div class="icon-option {% if kategori.icon == 'fa-utensils' %}selected{% endif %}" data-icon="fa-utensils" title="Makan"><i class="fas fa-utensils"></i></div>
+                <div class="icon-option {% if kategori.icon == 'fa-burger' %}selected{% endif %}" data-icon="fa-burger" title="Burger"><i class="fas fa-burger"></i></div>
+                <div class="icon-option {% if kategori.icon == 'fa-pizza-slice' %}selected{% endif %}" data-icon="fa-pizza-slice" title="Pizza"><i class="fas fa-pizza-slice"></i></div>
+                <div class="icon-option {% if kategori.icon == 'fa-cookie-bite' %}selected{% endif %}" data-icon="fa-cookie-bite" title="Snack"><i class="fas fa-cookie-bite"></i></div>
+                <div class="icon-option {% if kategori.icon == 'fa-bowl-rice' %}selected{% endif %}" data-icon="fa-bowl-rice" title="Nasi"><i class="fas fa-bowl-rice"></i></div>
+                <div class="icon-option {% if kategori.icon == 'fa-mug-hot' %}selected{% endif %}" data-icon="fa-mug-hot" title="Minuman Panas"><i class="fas fa-mug-hot"></i></div>
+                <div class="icon-option {% if kategori.icon == 'fa-bottle-water' %}selected{% endif %}" data-icon="fa-bottle-water" title="Air Minum"><i class="fas fa-bottle-water"></i></div>
+                <div class="icon-option {% if kategori.icon == 'fa-wine-bottle' %}selected{% endif %}" data-icon="fa-wine-bottle" title="Minuman Botol"><i class="fas fa-wine-bottle"></i></div>
+                <div class="icon-option {% if kategori.icon == 'fa-ice-cream' %}selected{% endif %}" data-icon="fa-ice-cream" title="Es Krim"><i class="fas fa-ice-cream"></i></div>
+                <div class="icon-option {% if kategori.icon == 'fa-cake-candles' %}selected{% endif %}" data-icon="fa-cake-candles" title="Kue"><i class="fas fa-cake-candles"></i></div>
+            </div>
+
+            <!-- Kebutuhan Pokok -->
+            <small class="icon-group-label">Kebutuhan Pokok</small>
+            <div class="selection-options">
+                <div class="icon-option {% if kategori.icon == 'fa-basket-shopping' %}selected{% endif %}" data-icon="fa-basket-shopping" title="Belanja"><i class="fas fa-basket-shopping"></i></div>
+                <div class="icon-option {% if kategori.icon == 'fa-cart-shopping' %}selected{% endif %}" data-icon="fa-cart-shopping" title="Keranjang"><i class="fas fa-cart-shopping"></i></div>
+                <div class="icon-option {% if kategori.icon == 'fa-store' %}selected{% endif %}" data-icon="fa-store" title="Toko"><i class="fas fa-store"></i></div>
+                <div class="icon-option {% if kategori.icon == 'fa-seedling' %}selected{% endif %}" data-icon="fa-seedling" title="Sayur/Buah"><i class="fas fa-seedling"></i></div>
+                <div class="icon-option {% if kategori.icon == 'fa-egg' %}selected{% endif %}" data-icon="fa-egg" title="Telur"><i class="fas fa-egg"></i></div>
+                <div class="icon-option {% if kategori.icon == 'fa-fish' %}selected{% endif %}" data-icon="fa-fish" title="Ikan"><i class="fas fa-fish"></i></div>
+                <div class="icon-option {% if kategori.icon == 'fa-drumstick-bite' %}selected{% endif %}" data-icon="fa-drumstick-bite" title="Daging"><i class="fas fa-drumstick-bite"></i></div>
+                <div class="icon-option {% if kategori.icon == 'fa-bread-slice' %}selected{% endif %}" data-icon="fa-bread-slice" title="Roti"><i class="fas fa-bread-slice"></i></div>
+                <div class="icon-option {% if kategori.icon == 'fa-carrot' %}selected{% endif %}" data-icon="fa-carrot" title="Sayuran"><i class="fas fa-carrot"></i></div>
+                <div class="icon-option {% if kategori.icon == 'fa-lemon' %}selected{% endif %}" data-icon="fa-lemon" title="Buah"><i class="fas fa-lemon"></i></div>
+            </div>
+
+            <!-- Perawatan Diri -->
+            <small class="icon-group-label">Perawatan Diri</small>
+            <div class="selection-options">
+                <div class="icon-option {% if kategori.icon == 'fa-pump-soap' %}selected{% endif %}" data-icon="fa-pump-soap" title="Sabun"><i class="fas fa-pump-soap"></i></div>
+                <div class="icon-option {% if kategori.icon == 'fa-spray-can' %}selected{% endif %}" data-icon="fa-spray-can" title="Deodorant"><i class="fas fa-spray-can"></i></div>
+                <div class="icon-option {% if kategori.icon == 'fa-tooth' %}selected{% endif %}" data-icon="fa-tooth" title="Pasta Gigi"><i class="fas fa-tooth"></i></div>
+                <div class="icon-option {% if kategori.icon == 'fa-scissors' %}selected{% endif %}" data-icon="fa-scissors" title="Gunting/Cukur"><i class="fas fa-scissors"></i></div>
+                <div class="icon-option {% if kategori.icon == 'fa-heart-pulse' %}selected{% endif %}" data-icon="fa-heart-pulse" title="Kesehatan"><i class="fas fa-heart-pulse"></i></div>
+                <div class="icon-option {% if kategori.icon == 'fa-pills' %}selected{% endif %}" data-icon="fa-pills" title="Obat"><i class="fas fa-pills"></i></div>
+                <div class="icon-option {% if kategori.icon == 'fa-bandage' %}selected{% endif %}" data-icon="fa-bandage" title="P3K"><i class="fas fa-bandage"></i></div>
+                <div class="icon-option {% if kategori.icon == 'fa-hand-sparkles' %}selected{% endif %}" data-icon="fa-hand-sparkles" title="Hand Sanitizer"><i class="fas fa-hand-sparkles"></i></div>
+            </div>
+
+            <!-- Elektronik & Pulsa -->
+            <small class="icon-group-label">Elektronik &amp; Pulsa</small>
+            <div class="selection-options">
+                <div class="icon-option {% if kategori.icon == 'fa-mobile-alt' %}selected{% endif %}" data-icon="fa-mobile-alt" title="HP"><i class="fas fa-mobile-alt"></i></div>
+                <div class="icon-option {% if kategori.icon == 'fa-plug' %}selected{% endif %}" data-icon="fa-plug" title="Charger"><i class="fas fa-plug"></i></div>
+                <div class="icon-option {% if kategori.icon == 'fa-wifi' %}selected{% endif %}" data-icon="fa-wifi" title="Wifi/Internet"><i class="fas fa-wifi"></i></div>
+                <div class="icon-option {% if kategori.icon == 'fa-bolt' %}selected{% endif %}" data-icon="fa-bolt" title="Token Listrik"><i class="fas fa-bolt"></i></div>
+                <div class="icon-option {% if kategori.icon == 'fa-headphones' %}selected{% endif %}" data-icon="fa-headphones" title="Headphone"><i class="fas fa-headphones"></i></div>
+                <div class="icon-option {% if kategori.icon == 'fa-battery-full' %}selected{% endif %}" data-icon="fa-battery-full" title="Baterai"><i class="fas fa-battery-full"></i></div>
+                <div class="icon-option {% if kategori.icon == 'fa-tv' %}selected{% endif %}" data-icon="fa-tv" title="TV"><i class="fas fa-tv"></i></div>
+                <div class="icon-option {% if kategori.icon == 'fa-laptop' %}selected{% endif %}" data-icon="fa-laptop" title="Laptop"><i class="fas fa-laptop"></i></div>
+            </div>
+
+            <!-- ATK & Perlengkapan -->
+            <small class="icon-group-label">ATK &amp; Perlengkapan</small>
+            <div class="selection-options">
+                <div class="icon-option {% if kategori.icon == 'fa-pen' %}selected{% endif %}" data-icon="fa-pen" title="Pulpen"><i class="fas fa-pen"></i></div>
+                <div class="icon-option {% if kategori.icon == 'fa-pencil' %}selected{% endif %}" data-icon="fa-pencil" title="Pensil"><i class="fas fa-pencil"></i></div>
+                <div class="icon-option {% if kategori.icon == 'fa-ruler' %}selected{% endif %}" data-icon="fa-ruler" title="Penggaris"><i class="fas fa-ruler"></i></div>
+                <div class="icon-option {% if kategori.icon == 'fa-paperclip' %}selected{% endif %}" data-icon="fa-paperclip" title="Klip Kertas"><i class="fas fa-paperclip"></i></div>
+                <div class="icon-option {% if kategori.icon == 'fa-book' %}selected{% endif %}" data-icon="fa-book" title="Buku"><i class="fas fa-book"></i></div>
+                <div class="icon-option {% if kategori.icon == 'fa-print' %}selected{% endif %}" data-icon="fa-print" title="Print"><i class="fas fa-print"></i></div>
+                <div class="icon-option {% if kategori.icon == 'fa-folder' %}selected{% endif %}" data-icon="fa-folder" title="Map"><i class="fas fa-folder"></i></div>
+                <div class="icon-option {% if kategori.icon == 'fa-tape' %}selected{% endif %}" data-icon="fa-tape" title="Selotip"><i class="fas fa-tape"></i></div>
+            </div>
+
+            <!-- Jasa & Lainnya -->
+            <small class="icon-group-label">Jasa &amp; Lainnya</small>
+            <div class="selection-options">
+                <div class="icon-option {% if kategori.icon == 'fa-tools' %}selected{% endif %}" data-icon="fa-tools" title="Servis"><i class="fas fa-tools"></i></div>
+                <div class="icon-option {% if kategori.icon == 'fa-truck' %}selected{% endif %}" data-icon="fa-truck" title="Pengiriman"><i class="fas fa-truck"></i></div>
+                <div class="icon-option {% if kategori.icon == 'fa-wrench' %}selected{% endif %}" data-icon="fa-wrench" title="Bengkel"><i class="fas fa-wrench"></i></div>
+                <div class="icon-option {% if kategori.icon == 'fa-shirt' %}selected{% endif %}" data-icon="fa-shirt" title="Pakaian"><i class="fas fa-shirt"></i></div>
+                <div class="icon-option {% if kategori.icon == 'fa-smoking' %}selected{% endif %}" data-icon="fa-smoking" title="Rokok"><i class="fas fa-smoking"></i></div>
+                <div class="icon-option {% if kategori.icon == 'fa-gas-pump' %}selected{% endif %}" data-icon="fa-gas-pump" title="BBM"><i class="fas fa-gas-pump"></i></div>
+                <div class="icon-option {% if kategori.icon == 'fa-box' %}selected{% endif %}" data-icon="fa-box" title="Lainnya"><i class="fas fa-box"></i></div>
+                <div class="icon-option {% if kategori.icon == 'fa-tags' %}selected{% endif %}" data-icon="fa-tags" title="Umum"><i class="fas fa-tags"></i></div>
+            </div>
+
+        </div>
+
+        <!-- Hidden inputs -->
+        <input type="hidden" name="warna" id="selectedColor" value="{{ kategori.warna }}">
+        <input type="hidden" name="icon" id="selectedIcon" value="{{ kategori.icon }}">
+
+        <!-- Tombol -->
+        <div class="button-group">
+            <button type="submit">Simpan Perubahan</button>
+            <a href="{{ url_for('kategori.daftar_kategori') }}">
+                <button type="button">Batal</button>
+            </a>
+        </div>
+    </form>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Klik warna
+        document.querySelectorAll('.color-option').forEach(function(el) {
+            el.addEventListener('click', function() {
+                document.querySelectorAll('.color-option').forEach(e => e.classList.remove('selected'));
+                this.classList.add('selected');
+                document.getElementById('selectedColor').value = this.dataset.color;
+            });
+        });
+
+        // Klik icon
+        document.querySelectorAll('.icon-option').forEach(function(el) {
+            el.addEventListener('click', function() {
+                document.querySelectorAll('.icon-option').forEach(e => e.classList.remove('selected'));
+                this.classList.add('selected');
+                document.getElementById('selectedIcon').value = this.dataset.icon;
+            });
+        });
+    </script>
+
+    <script src="{{ url_for('static', filename='js/edit.js') }}"></script>
+</body>
+</html>

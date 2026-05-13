@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Backup & Restore - KasirPro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/Backup_Restore.css') }}">
+</head>
+<body>
+
+  <!-- ── FLASH MESSAGES ── -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3"
+             role="alert"
+             style="z-index:99999;min-width:350px;border-radius:10px;text-align:center;box-shadow:0 4px 15px rgba(0,0,0,0.2);">
+          <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %} me-2"></i>
+          <strong>{{ message }}</strong>
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <div class="page">
+
+    <!-- ── SIDEBAR UTAMA ── -->
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="dot"></span>
+        KasirPro
+      </div>
+      <nav class="nav">
+        <a href="{{ url_for('dashboard.index') }}"><i class="fas fa-home fa-fw"></i> Dashboard</a>
+        <a href="{{ url_for('pembayaran.pembayaran') }}"><i class="fas fa-money-bill fa-fw"></i> Pembayaran</a>
+        <a href="{{ url_for('laporan.output_barang') }}"><i class="fas fa-chart-bar fa-fw"></i> Laporan</a>
+        <a href="{{ url_for('kalkulator.halaman_kalkulator') }}"><i class="fas fa-calculator fa-fw"></i> Kalkulator</a>
+        <a href="{{ url_for('input_barang.input_barang') }}"><i class="fas fa-plus-circle fa-fw"></i> Input Barang</a>
+        <a href="{{ url_for('stock.halaman_stock') }}"><i class="fas fa-boxes fa-fw"></i> Stock</a>
+        <a href="{{ url_for('kategori.daftar_kategori') }}"><i class="fas fa-tags fa-fw"></i> Kategori</a>
+        <a href="{{ url_for('transaksi.daftar_transaksi') }}"><i class="fas fa-exchange-alt fa-fw"></i> Transaksi</a>
+        <a href="{{ url_for('pelanggan.halaman_pelanggan') }}"><i class="fas fa-users fa-fw"></i> Pelanggan</a>
+        <!-- ✅ Perbaikan: route pengaturan.pengaturan bukan dashboard.pengaturan -->
+        <a href="{{ url_for('pengaturan.pengaturan') }}" class="active">
+          <i class="fas fa-cog fa-fw"></i> Pengaturan
+        </a>
+        <a href="{{ url_for('auth.logout') }}"><i class="fas fa-sign-out-alt fa-fw"></i> Logout</a>
+      </nav>
+    </aside>
+
+    <!-- ── KONTEN UTAMA ── -->
+    <main class="main">
+      <div class="pengaturan-body">
+
+        <!-- Sidebar Pengaturan -->
+        <div class="peng-sidebar">
+          <!-- ✅ Perbaikan: semua route disesuaikan -->
+          <a class="peng-nav-item" href="{{ url_for('pengaturan.pengaturan') }}">
+            <i class="fas fa-user"></i> Profil Pengguna
+          </a>
+          <a class="peng-nav-item" href="{{ url_for('pengaturan.data_perusahaan') }}">
+            <i class="fas fa-building"></i> Data Perusahaan
+          </a>
+          <a class="peng-nav-item" href="{{ url_for('auth.change_password') }}">
+            <i class="fas fa-lock"></i> Keamanan
+          </a>
+          <a class="peng-nav-item active" href="{{ url_for('pengaturan.halaman_backup_restore') }}">
+            <i class="fas fa-database"></i> Backup & Restore
+          </a>
+          <a class="peng-nav-item" href="{{ url_for('pengaturan.integrasi') }}">
+            <i class="fas fa-plug"></i> Integrasi
+          </a>
+        </div>
+
+        <!-- ── KONTEN BACKUP & RESTORE ── -->
+        <div class="card-box">
+          <div class="card-box-header">
+            <h3>Backup & Restore</h3>
+            <div class="header-actions">
+              <!-- ✅ Tombol Backup trigger submit form backup -->
+              <button type="submit" form="form-backup" class="btn-header btn-header-primary">
+                <i class="fas fa-download" style="margin-right:6px;"></i> Backup Sekarang
+              </button>
+              <!-- ✅ Tombol Restore trigger input file -->
+              <button type="button" class="btn-header btn-header-outline"
+                      onclick="document.getElementById('file-restore').click()">
+                <i class="fas fa-upload" style="margin-right:6px;"></i> Restore
+              </button>
+            </div>
+          </div>
+
+          <div class="card-box-body">
+
+            <!-- Info Backup Otomatis -->
+            <div class="info-box">
+              <i class="fas fa-clock"></i>
+              <div class="info-box-content">
+                <h4>Backup Otomatis Terjadwal</h4>
+                <p>Backup otomatis akan berjalan setiap hari pada pukul 02:00 WIB.
+                   Data akan disimpan dengan enkripsi untuk keamanan maksimal.</p>
+                <span class="status-badge">
+                  <span class="status-dot"></span> Aktif
+                </span>
+              </div>
+            </div>
+
+            <!-- ✅ FORM BACKUP — terhubung ke backend -->
+            <form id="form-backup"
+                  method="POST"
+                  action="{{ url_for('pengaturan.halaman_backup_restore') }}">
+
+              <!-- Toggle Cards -->
+              <div class="toggle-grid">
+                <div class="toggle-card">
+                  <div class="toggle-card-info">
+                    <h4>Backup Otomatis</h4>
+                    <p>Aktifkan backup otomatis untuk melindungi data Anda secara berkala</p>
+                  </div>
+                  <label class="toggle-switch">
+                    <input type="checkbox" name="backup_otomatis" checked>
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+                <div class="toggle-card">
+                  <div class="toggle-card-info">
+                    <h4>Enkripsi Backup</h4>
+                    <p>Lindungi backup dengan enkripsi AES-256 untuk keamanan maksimal</p>
+                  </div>
+                  <label class="toggle-switch">
+                    <input type="checkbox" name="enkripsi_backup" checked>
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Form Pengaturan Backup -->
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="frekuensi">Frekuensi Backup</label>
+                  <select id="frekuensi" name="frekuensi">
+                    <option value="harian" selected>Setiap Hari</option>
+                    <option value="mingguan">Setiap Minggu</option>
+                    <option value="bulanan">Setiap Bulan</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="waktu-backup">Waktu Backup</label>
+                  <input type="time" id="waktu-backup" name="waktu_backup" value="02:00">
+                </div>
+                <div class="form-group">
+                  <label for="retensi">Retensi Data (Hari)</label>
+                  <input type="number" id="retensi" name="retensi" placeholder="Contoh: 30" min="1">
+                </div>
+                <div class="form-group">
+                  <label for="lokasi">Lokasi Penyimpanan</label>
+                  <select id="lokasi" name="lokasi">
+                    <option value="cloud" selected>Cloud Storage</option>
+                    <option value="lokal">Lokal</option>
+                    <option value="keduanya">Keduanya</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Checkbox name sesuai backend -->
+              <div class="checkbox-section">
+                <h4>Data yang Akan Di-backup</h4>
+                <div class="checkbox-grid">
+                  <label class="checkbox-item">
+                    <input type="checkbox" name="backup_transaksi" checked>
+                    <i class="fas fa-exchange-alt" style="color:var(--primary);font-size:14px;"></i>
+                    Data Transaksi
+                  </label>
+                  <label class="checkbox-item">
+                    <input type="checkbox" name="backup_produk" checked>
+                    <i class="fas fa-box" style="color:var(--primary);font-size:14px;"></i>
+                    Data Produk
+                  </label>
+                  <label class="checkbox-item">
+                    <input type="checkbox" name="backup_pelanggan" checked>
+                    <i class="fas fa-users" style="color:var(--primary);font-size:14px;"></i>
+                    Data Pelanggan
+                  </label>
+                  <label class="checkbox-item">
+                    <input type="checkbox" name="backup_kategori" checked>
+                    <i class="fas fa-tags" style="color:var(--primary);font-size:14px;"></i>
+                    Data Kategori
+                  </label>
+                </div>
+              </div>
+
+              <!-- Actions -->
+              <div class="actions">
+                <button type="button" class="btn-cancel"
+                        onclick="window.location.href='{{ url_for('pengaturan.pengaturan') }}'">
+                  Batal
+                </button>
+                <button type="submit" class="btn-save">
+                  <i class="fas fa-save" style="margin-right:6px;"></i>
+                  Buat Backup Sekarang
+                </button>
+              </div>
+
+            </form>
+
+            <!-- ✅ FORM RESTORE — terpisah dari form backup -->
+            <hr style="margin: 24px 0;">
+            <h4 style="margin-bottom:12px;">Restore dari File Backup</h4>
+            <form id="form-restore"
+                  method="POST"
+                  action="{{ url_for('pengaturan.restore') }}"
+                  enctype="multipart/form-data">
+              <div class="form-group">
+                <label>Pilih File Backup (.zip)</label>
+                <input type="file"
+                       id="file-restore"
+                       name="file_backup"
+                       accept=".zip"
+                       style="margin-top:8px;"
+                       onchange="document.getElementById('form-restore').submit()">
+                <small style="color:var(--text-muted);margin-top:4px;display:block;">
+                  Hanya file .zip hasil backup KasirPro yang didukung
+                </small>
+              </div>
+            </form>
+
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

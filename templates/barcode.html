@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barcode Scanner</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Barcode</h1>
+        <div id="barcodeDisplay"></div>
+        <p id="barcodeText"></p>
+        <input type="text" id="kodeBarang" placeholder="Scan barcode atau masukan kode secara manual">
+        <button onclick="startBarcodeScanner()">Scan</button>
+    </div>
+    <script>
+        
+        function startBarcodeScanner() {
+            // Simulasi pemindaian barcode
+            const barcode = "1234567890"; // Ganti dengan hasil pemindaian sebenarnya
+            document.getElementById("barcodeDisplay").innerText = "Barcode: " + barcode;
+            document.getElementById("kodeBarang").value = barcode;
+        }
+    </script>
+</body>
+</html>

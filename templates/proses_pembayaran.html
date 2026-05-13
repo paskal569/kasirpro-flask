@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta charset="utf-8" />
+    <title>Metode Pembayaran</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+  </head>
+  <body>
+    <main class="pembayaran-container">
+
+      <!-- HEADER -->
+      <header class="metode-pembayaran-header">
+        <div class="header-content">
+          <h1 class="header-title">Metode Pembayaran</h1>
+          <p class="header-subtitle">Pilih metode pembayaran yang diinginkan</p>
+        </div>
+      </header>
+
+      <!-- BODY CONTENT -->
+      <div class="body-content">
+
+        <!-- Kiri -->
+        <div class="left-panel">
+
+          <!-- Total Pembayaran -->
+          <section class="total-section">
+            <span class="total-label">Total Pembayaran</span>
+            <div class="total-amount">{{total | format_rupiah}}</div>
+          </section>
+
+          <!-- Pilih Metode -->
+          <fieldset class="payment-method-section">
+            <legend class="section-legend">Pilih Metode Pembayaran</legend>
+            <div class="payment-methods">
+              <label class="payment-option selected">
+                <input type="radio" name="payment-method" value="tunai" class="payment-radio" checked />
+                <span class="method-icon">
+                  <i class="fas fa-money-bill-wave"></i>
+                </span>
+                <span class="method-label">Tunai</span>
+              </label>
+              <label class="payment-option">
+                <input type="radio" name="payment-method" value="kartu" class="payment-radio" />
+                <span class="method-icon">
+                  <i class="fas fa-credit-card"></i>
+                </span>
+                <span class="method-label">Kartu</span>
+              </label>
+              <label class="payment-option">
+                <input type="radio" name="payment-method" value="e-wallet" class="payment-radio" />
+                <span class="method-icon">
+                  <i class="fas fa-wallet"></i>
+                </span>
+                <span class="method-label">E-Wallet</span>
+              </label>
+            </div>
+          </fieldset>
+
+          <!--pilihan bank -->
+          <section>
+            <div class="bank-options">
+  <label class="bank-card">
+    <input type="radio" name="bank" value="bca" />
+    <img src="logo-bca.png" alt="BCA" />
+    <span>BCA</span>
+  </label>
+  <label class="bank-card">
+    <input type="radio" name="bank" value="bni" />
+    <img src="logo-bni.png" alt="BNI" />
+    <span>BNI</span>
+  </label>
+  <label class="bank-card">
+    <input type="radio" name="bank" value="bni" />
+    <img src="logo-bni.png" alt="BNI" />
+    <span>BNI</span>
+  </label>
+</div>
+          </section>
+          <!-- Jumlah Uang -->
+          <section class="cash-input-section">
+            <label for="cash-amount" class="input-label">Jumlah Uang Diterima</label>
+            <div class="input-wrapper">
+              <input
+                type="text"
+                id="cash-amount"
+                class="cash-input"
+                placeholder="Masukkan jumlah uang"
+                inputmode="numeric"
+              />
+              <span class="currency-badge">IDR</span>
+            </div>
+            <div class="quick-amount-buttons">
+              <button type="button" class="quick-btn" data-amount="50000">Rp 50.000</button>
+              <button type="button" class="quick-btn" data-amount="100000">Rp 100.000</button>
+              <button type="button" class="quick-btn" data-amount="150000">Rp 150.000</button>
+              <button type="button" class="quick-btn" data-amount="200000">Rp 200.000</button>
+              <button type="button" class="quick-btn" data-amount="500000">Rp 500.000</button>
+              <button type="button" class="quick-btn exact-btn" data-amount="125000">Uang Pas</button>
+            </div>
+          </section>
+
+        </div>
+
+        <!-- Kanan -->
+        <div class="right-panel">
+
+          <!-- Ringkasan -->
+          <aside class="summary-card">
+            <h2 class="summary-title">Ringkasan Pembayaran</h2>
+            <div class="summary-row">
+              <span class="summary-key">Metode Pembayaran</span>
+              <span class="summary-val">Tunai</span>
+            </div>
+            <div class="summary-row">
+              <span class="summary-key">Total Pembayaran</span>
+              <span class="summary-val bold">Rp 125.000</span>
+            </div>
+          </aside>
+
+          <!-- Tombol Aksi -->
+          <div class="action-buttons">
+            <button type="button" class="btn-proses" disabled>Proses Pembayaran</button>
+            <button type="button" class="btn-reset">Reset</button>
+          </div>
+
+          <!-- Info -->
+          <div class="info-alert">
+            <i class="fas fa-info-circle info-icon"></i>
+            <p class="info-text">Pastikan semua informasi pembayaran sudah benar sebelum memproses transaksi.</p>
+          </div>
+
+        </div>
+      </div>
+
+    </main>
+
+    <style>
+      :root {
+        --primary: #4361ee;
+        --primary-dark: #3a56d4;
+        --primary-light: #eef0fd;
+        --white: #ffffff;
+        --gray-100: #f8f9fa;
+        --gray-200: #e9ecef;
+        --gray-400: #ced4da;
+        --gray-600: #6c757d;
+        --gray-900: #212529;
+        --border-radius: 10px;
+        --shadow-sm: 0 2px 8px rgba(0,0,0,0.08);
+        --shadow-md: 0 4px 16px rgba(0,0,0,0.10);
+      }
+
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+
+      body {
+        font-family: 'Inter', sans-serif;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+        color: var(--gray-900);
+      }
+
+      /* ========================================
+         CONTAINER UTAMA
+      ======================================== */
+      .pembayaran-container {
+        width: 100%;
+        max-width: 860px;
+        background: var(--white);
+        border-radius: 16px;
+        box-shadow: var(--shadow-md);
+        overflow: hidden;
+      }
+
+      /* ========================================
+         HEADER — BAGIAN YANG DISEMPURNAKAN
+      ======================================== */
+      .metode-pembayaran-header {
+        background-color: #4361ee;
+        /* Subtle gradient agar tidak flat */
+        background-image: linear-gradient(135deg, #4361ee 0%, #3a56d4 60%, #2d4bbb 100%);
+        width: 100%;
+        padding: 28px 36px 26px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      /* Dekorasi lingkaran di pojok kanan header */
+      .metode-pembayaran-header::before {
+        content: '';
+        position: absolute;
+        top: -40px;
+        right: -40px;
+        width: 160px;
+        height: 160px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.07);
+        pointer-events: none;
+      }
+
+      .metode-pembayaran-header::after {
+        content: '';
+        position: absolute;
+        bottom: -60px;
+        right: 80px;
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.05);
+        pointer-events: none;
+      }
+
+      .header-content {
+        position: relative;
+        z-index: 2;
+      }
+
+      .header-title {
+        font-family: 'Inter', sans-serif;
+        font-size: 22px;
+        font-weight: 700;
+        color: #ffffff;
+        letter-spacing: 0.3px;
+        line-height: 1.3;
+        margin-bottom: 4px;
+        /* Override posisi fixed dari kode lama */
+        position: static !important;
+        top: auto !important;
+        left: auto !important;
+        white-space: normal !important;
+      }
+
+      .header-subtitle {
+        font-family: 'Inter', sans-serif;
+        font-size: 13px;
+        font-weight: 400;
+        color: rgba(255, 255, 255, 0.80);
+        letter-spacing: 0.4px;
+        line-height: 1.5;
+        /* Override posisi fixed dari kode lama */
+        position: static !important;
+        top: auto !important;
+        left: auto !important;
+        white-space: normal !important;
+      }
+
+      /* ========================================
+         BODY CONTENT — 2 KOLOM
+      ======================================== */
+      .body-content {
+        display: flex;
+        gap: 24px;
+        padding: 28px 28px 28px;
+      }
+
+      .left-panel { flex: 1; display: flex; flex-direction: column; gap: 20px; }
+      .right-panel { width: 300px; display: flex; flex-direction: column; gap: 16px; }
+
+      /* ========================================
+         TOTAL PEMBAYARAN
+      ======================================== */
+      .total-section {
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--border-radius);
+        padding: 18px 20px;
+        box-shadow: var(--shadow-sm);
+      }
+      .total-label { font-size: 13px; color: var(--gray-600); display: block; margin-bottom: 6px; }
+      .total-amount { font-size: 26px; font-weight: 700; color: var(--primary); }
+
+      /* ========================================
+         PILIH METODE PEMBAYARAN
+      ======================================== */
+      .payment-method-section {
+        border: none;
+        padding: 0;
+      }
+      .section-legend {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--gray-900);
+        margin-bottom: 12px;
+      }
+      .payment-methods {
+        display: flex;
+        gap: 12px;
+      }
+      .payment-option {
+        flex: 1;
+        border: 1.5px solid var(--gray-200);
+        border-radius: var(--border-radius);
+        padding: 14px 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        transition: border-color 0.2s, background 0.2s;
+        background: var(--white);
+      }
+      .payment-option input[type="radio"] { display: none; }
+      .payment-option.selected,
+      .payment-option:has(input:checked) {
+        border-color: var(--primary);
+        background: var(--primary-light);
+      }
+      .method-icon { font-size: 20px; color: var(--primary); }
+      .method-label { font-size: 13px; font-weight: 500; color: var(--gray-900); }
+
+      /* ========================================
+         JUMLAH UANG DITERIMA
+      ======================================== */
+      .cash-input-section { display: flex; flex-direction: column; gap: 10px; }
+      .input-label { font-size: 13px; font-weight: 600; color: var(--gray-900); }
+      .input-wrapper {
+        display: flex;
+        align-items: center;
+        border: 1.5px solid var(--gray-400);
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        background: var(--white);
+      }
+      .cash-input {
+        flex: 1;
+        border: none;
+        outline: none;
+        padding: 10px 14px;
+        font-size: 14px;
+        font-family: 'Inter', sans-serif;
+        color: var(--gray-900);
+        background: transparent;
+      }
+      .currency-badge {
+        padding: 10px 14px;
+        font-size: 13px;
+        color: var(--gray-600);
+        background: var(--gray-100);
+        border-left: 1px solid var(--gray-400);
+      }
+      .quick-amount-buttons {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+      }
+      .quick-btn {
+        border: 1.5px solid var(--gray-200);
+        border-radius: 8px;
+        background: var(--white);
+        font-size: 13px;
+        font-family: 'Inter', sans-serif;
+        color: var(--gray-900);
+        padding: 8px 4px;
+        cursor: pointer;
+        transition: background 0.15s, border-color 0.15s;
+      }
+      .quick-btn:hover { background: var(--gray-100); }
+      .exact-btn {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: var(--white);
+        font-weight: 600;
+      }
+      .exact-btn:hover { background: var(--primary-dark); }
+
+      /* ========================================
+         RINGKASAN PEMBAYARAN
+      ======================================== */
+      .summary-card {
+        border: 1.5px solid var(--gray-200);
+        border-radius: var(--border-radius);
+        padding: 18px;
+        background: var(--white);
+        box-shadow: var(--shadow-sm);
+      }
+      .summary-title {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--gray-900);
+        margin-bottom: 14px;
+        /* override h2 global */
+        position: static !important;
+        top: auto !important; left: auto !important;
+        line-height: normal !important;
+        white-space: normal !important;
+        color: var(--gray-900) !important;
+      }
+      .summary-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        border-top: 1px solid var(--gray-200);
+        font-size: 13px;
+      }
+      .summary-key { color: var(--gray-600); }
+      .summary-val { color: var(--gray-900); }
+      .summary-val.bold { font-weight: 700; }
+
+      /* ========================================
+         TOMBOL AKSI
+      ======================================== */
+      .action-buttons { display: flex; flex-direction: column; gap: 10px; }
+      .btn-proses {
+        width: 100%;
+        padding: 12px;
+        background: var(--primary);
+        border: none;
+        border-radius: var(--border-radius);
+        color: var(--white);
+        font-size: 14px;
+        font-weight: 600;
+        font-family: 'Inter', sans-serif;
+        cursor: pointer;
+        opacity: 0.65;
+        transition: opacity 0.2s;
+      }
+      .btn-proses:not([disabled]) { opacity: 1; }
+      .btn-proses:not([disabled]):hover { background: var(--primary-dark); }
+      .btn-reset {
+        width: 100%;
+        padding: 12px;
+        background: var(--white);
+        border: 1.5px solid var(--gray-400);
+        border-radius: var(--border-radius);
+        color: var(--gray-900);
+        font-size: 14px;
+        font-family: 'Inter', sans-serif;
+        cursor: pointer;
+        transition: background 0.15s;
+      }
+      .btn-reset:hover { background: var(--gray-100); }
+
+      /* ========================================
+         INFO ALERT
+      ======================================== */
+      .info-alert {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        background: var(--primary-light);
+        border: 1px solid #c5cdfa;
+        border-radius: var(--border-radius);
+        padding: 12px 14px;
+      }
+      .info-icon { color: var(--primary); font-size: 15px; margin-top: 1px; flex-shrink: 0; }
+      .info-text { font-size: 12.5px; color: var(--gray-900); line-height: 1.6; margin: 0; position: static !important; top: auto !important; left: auto !important; white-space: normal !important; font-weight: 400 !important; }
+    </style>
+  </body>
+</html>

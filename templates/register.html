@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrasi - KasirPro</title>
+    <meta name="description" content="Daftar akun KasirPro - Solusi kasir modern">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/register.css') }}">
+</head>
+<body>
+
+    <!-- FLASH MESSAGES -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3"
+                     role="alert" style="z-index: 9999; min-width: 350px;">
+                    <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'danger' %}exclamation-circle{% elif category == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %} me-2"></i>
+                    <strong>{{ message }}</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="login-container">
+        <!-- KIRI -->
+        <div class="login-left">
+            <div class="logo-container">
+                <div class="logo">KP</div>
+                <div class="logo-text">KasirPro</div>
+            </div>
+            <div class="left-content">
+                <h1>Solusi Kasir Modern</h1>
+                <p>Kelola transaksi dan inventaris dengan mudah.</p>
+                <ul class="features">
+                    <li><i class="fas fa-bolt"></i><span>Transaksi cepat dan akurat</span></li>
+                    <li><i class="fas fa-chart-line"></i><span>Laporan real-time</span></li>
+                    <li><i class="fas fa-mobile-alt"></i><span>Akses dari perangkat apapun</span></li>
+                    <li><i class="fas fa-shield-alt"></i><span>Keamanan data terjamin</span></li>
+                </ul>
+                <div class="back-to-login">
+                    <p>Sudah punya akun?</p>
+                    <a href="{{ url_for('auth.login') }}" class="login-link">
+                        <i class="fas fa-sign-in-alt"></i> Masuk di sini
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- KANAN -->
+        <div class="login-right">
+            <div class="login-header">
+                <h2>Registrasi Kasir</h2>
+                <p>Masukkan data Anda</p>
+            </div>
+
+            <form method="POST" action="{{ url_for('auth.register') }}">
+
+                <div class="form-group">
+                    <label for="nama_lengkap">Nama Lengkap</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-id-card"></i>
+                        <input type="text" id="nama_lengkap" name="nama_lengkap"
+                               class="form-control" placeholder="" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="username">Username / ID Pegawai</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="username" name="username"
+                               class="form-control" placeholder="contoh: kasir01" required>
+                    </div>
+                    <small class="form-text">Username akan digunakan untuk login</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="email" name="email"
+                               class="form-control" placeholder="contoh: email@perusahaan.com" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="input-with-icon">
+                        <input type="password" id="password" name="password"
+                               class="form-control" placeholder="Minimal 8 karakter" required>
+                        <i class="fas fa-eye password-toggle" onclick="togglePassword('password')"></i>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirm_password">Konfirmasi Password</label>
+                    <div class="input-with-icon">
+                        <input type="password" id="confirm_password" name="confirm_password"
+                               class="form-control" placeholder="Minimal 8 karakter" required>
+                        <i class="fas fa-eye password-toggle" onclick="togglePassword('confirm_password')"></i>
+                    </div>
+                    <small class="form-text">Minimal 8 karakter dengan kombinasi huruf, angka, dan simbol</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="role">Role/Jabatan</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-briefcase"></i>
+                        <select id="role" name="role" class="form-control" required>
+                            <option value="">Pilih role</option>
+                            <option value="kasir">Kasir</option>
+                            <option value="supervisor">Supervisor</option>
+                            <option value="manager">Manager</option>
+                            <option value="admin">Administrator</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group checkbox-group">
+                    <input type="checkbox" id="terms" name="terms" required>
+                    <label for="terms">
+                        Saya menyetujui <a href="#">Syarat dan Ketentuan</a> serta
+                        <a href="#">Kebijakan Privasi</a>
+                    </label>
+                </div>
+
+                <button type="submit" class="login-btn">
+                    <i class="fas fa-user-plus"></i> Daftar Sekarang
+                </button>
+
+            </form>
+
+            <div class="footer">
+                <p>Pengguna bertanggung jawab atas kerahasiaan username dan password.
+                Segala aktivitas yang terjadi melalui akun pengguna menjadi tanggung jawab pemilik akun.</p>
+                <p class="copyright">&copy; 2024 KasirPro. Hak Cipta Dilindungi.</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/register.js') }}"></script>
+</body>
+</html>

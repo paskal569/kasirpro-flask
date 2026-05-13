@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pengaturan - KasirPro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    :root {
+      --sidebar-bg: #0f172a;
+      --sidebar-text: #e2e8f0;
+      --sidebar-width: 260px;
+      --primary: #3A56D4;
+      --border: #E5E7EB;
+      --text: #1F2937;
+      --muted: #6B7280;
+    }
+    body { margin: 0; font-family: 'Inter', system-ui, sans-serif; background: #f4f6f9; }
+
+    /* ── LAYOUT ── */
+    .page { display: grid; grid-template-columns: var(--sidebar-width) 1fr; min-height: 100vh; }
+
+    /* ── SIDEBAR ── */
+    .sidebar { background: var(--sidebar-bg); color: var(--sidebar-text); padding: 28px 22px; position: sticky; top: 0; height: 100vh; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 16px; margin-bottom: 26px; color: #fff; }
+    .brand .dot { width: 12px; height: 12px; border-radius: 50%; background: linear-gradient(135deg, #60a5fa, #2563eb); flex-shrink: 0; }
+    .nav { display: flex; flex-direction: column; gap: 4px; }
+    .nav a { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; color: var(--sidebar-text); text-decoration: none; font-size: 14px; transition: background 0.2s, color 0.2s, transform 0.2s; }
+    .nav a:hover { background: rgba(96,165,250,0.15); color: #fff; transform: translateX(4px); }
+    .nav a.active { background: rgba(59,130,246,0.25); color: #60a5fa; transform: translateX(4px); }
+
+    /* ── MAIN ── */
+    .main { padding: 30px 34px 48px; overflow-y: auto; }
+
+    /* ── PENGATURAN LAYOUT ── */
+    .pengaturan-body { display: flex; gap: 16px; align-items: flex-start; }
+
+    /* ── PENGATURAN SIDEBAR ── */
+    .peng-sidebar { width: 210px; flex-shrink: 0; background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 8px 0; }
+    .peng-nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 16px; font-size: 14px; color: var(--muted); text-decoration: none; transition: background 0.15s, color 0.15s; }
+    .peng-nav-item:hover { background: #F8F9FA; color: var(--text); }
+    .peng-nav-item.active { background: #EEF2FF; color: var(--primary); font-weight: 500; }
+    .peng-nav-item i { width: 16px; font-size: 14px; text-align: center; opacity: 0.7; }
+    .peng-nav-item.active i { opacity: 1; }
+
+    /* ── CARD ── */
+    .card-box { flex: 1; background: #fff; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+    .card-box-header { padding: 18px 24px; border-bottom: 1px solid var(--border); }
+    .card-box-header h3 { font-size: 16px; font-weight: 600; color: var(--text); margin: 0; }
+    .card-box-body { padding: 24px; }
+
+    /* ── FORM ── */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 20px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group label { font-size: 13px; font-weight: 500; color: #374151; }
+    .form-group input,
+    .form-group textarea { border: 1px solid #D1D5DB; border-radius: 8px; padding: 10px 12px; font-size: 14px; background: #fff; color: var(--text); font-family: inherit; transition: border-color 0.15s, box-shadow 0.15s; width: 100%; }
+    .form-group input { height: 42px; }
+    .form-group textarea { resize: vertical; min-height: 80px; }
+    .form-group input:focus,
+    .form-group textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(58,86,212,0.1); }
+
+    /* ── ACTIONS ── */
+    .actions { display: flex; justify-content: flex-end; gap: 10px; padding-top: 20px; border-top: 1px solid var(--border); margin-top: 20px; }
+    .btn-cancel { background: #fff; border: 1px solid #D1D5DB; border-radius: 8px; padding: 10px 20px; font-size: 14px; color: #374151; cursor: pointer; font-family: inherit; transition: background 0.15s; }
+    .btn-cancel:hover { background: #F8F9FA; }
+    .btn-save { background: var(--primary); border: none; border-radius: 8px; padding: 10px 20px; font-size: 14px; color: #fff; cursor: pointer; font-weight: 500; font-family: inherit; transition: background 0.15s; }
+    .btn-save:hover { background: #2c44b0; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .page { grid-template-columns: 1fr; }
+      .pengaturan-body { flex-direction: column; }
+      .peng-sidebar { width: 100%; }
+      .form-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3"
+             role="alert" style="z-index:99999;min-width:350px;border-radius:10px;text-align:center;box-shadow:0 4px 15px rgba(0,0,0,0.2);">
+          <strong>{{ message }}</strong>
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <div class="page">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="brand"><span class="dot"></span> KasirPro</div>
+      <nav class="nav">
+        <a href="{{ url_for('dashboard.index') }}"><i class="fas fa-home fa-fw"></i> Dashboard</a>
+        <a href="{{ url_for('pembayaran.pembayaran') }}"><i class="fas fa-money-bill fa-fw"></i> Pembayaran</a>
+        <a href="{{ url_for('laporan.output_barang') }}"><i class="fas fa-chart-bar fa-fw"></i> Laporan</a>
+        <a href="{{ url_for('kalkulator.halaman_kalkulator') }}"><i class="fas fa-calculator fa-fw"></i> Kalkulator</a>
+        <a href="{{ url_for('input_barang.input_barang') }}"><i class="fas fa-plus-circle fa-fw"></i> Input Barang</a>
+        <a href="{{ url_for('stock.halaman_stock') }}"><i class="fas fa-boxes fa-fw"></i> Stock</a>
+        <a href="{{ url_for('kategori.daftar_kategori') }}"><i class="fas fa-tags fa-fw"></i> Kategori</a>
+        <a href="{{ url_for('transaksi.daftar_transaksi') }}"><i class="fas fa-exchange-alt fa-fw"></i> Transaksi</a>
+        <a href="{{ url_for('pelanggan.halaman_pelanggan') }}"><i class="fas fa-users fa-fw"></i> Pelanggan</a>
+        <a href="#" class="active"><i class="fas fa-cog fa-fw"></i> Pengaturan</a>
+        <a href="{{ url_for('auth.logout') }}"><i class="fas fa-sign-out-alt fa-fw"></i> Logout</a>
+      </nav>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+      <div class="pengaturan-body">
+
+        <!-- Sidebar Pengaturan -->
+        <div class="peng-sidebar">
+          <a class="peng-nav-item" href="{{ url_for('pengaturan.pengaturan') }}"><i class="fas fa-user"></i> Profil Pengguna</a>
+          <a class="peng-nav-item active" href="{{ url_for('pengaturan.data_perusahaan') }}"><i class="fas fa-building"></i> Data Perusahaan</a>
+          <a class="peng-nav-item" href="{{ url_for('auth.change_password') }}"><i class="fas fa-lock"></i>Keamanan</a>
+          <a class="peng-nav-item" href="{{ url_for('pengaturan.halaman_backup_restore') }}"><i class="fas fa-database"></i> Backup & Restore</a>
+          <a class="peng-nav-item" href="{{ url_for('pengaturan.integrasi') }}"><i class="fas fa-plug"></i> Integrasi</a>
+        </div>
+        
+        
+        <form method="POST" action="{{ url_for('pengaturan.data_perusahaan') }}">
+        <!-- Konten Data Perusahaan -->
+        <div class="card-box">
+          <div class="card-box-header">
+            <h3>Data Perusahaan</h3>
+          </div>
+          <div class="card-box-body">
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="nama-perusahaan">Nama Perusahaan</label>
+                <input type="text" id="nama-perusahaan" value="{{ info.nama or '' }}" name="nama_perusahaan" placeholder="Contoh: Toko Sukses Makmur">
+              </div>
+              <div class="form-group">
+                <label for="alamat">Alamat</label>
+                <textarea id="alamat" name="alamat"value="{{ info.alamat or '' }}" placeholder="Masukkan alamat perusahaan"></textarea>
+              </div>
+              <div class="form-group">
+                <label for="telepon">Telepon</label>
+                <input type="tel" id="telepon" value="{{ info.telepon or '' }}" name="telepon" placeholder="Masukkan nomor telepon perusahaan">
+              </div>
+              <div class="form-group">
+                <label for="website">Website</label>
+                <input type="url" id="website" value="{{ info.website or '' }}" name="website" placeholder="Masukkan URL website perusahaan">
+              </div>
+            </div>
+
+            <div class="actions">
+              <button class="btn-cancel">Batal</button>
+              <button class="btn-save">Simpan Perubahan</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

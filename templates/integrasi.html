@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Integrasi - KasirPro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/integrasi.css') }}">
+</head>
+
+<body>
+
+  <!-- FLASH MESSAGE -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3"
+             role="alert"
+             style="z-index:99999;min-width:350px;border-radius:10px;
+                    text-align:center;box-shadow:0 4px 15px rgba(0,0,0,0.2);">
+          <strong>{{ message }}</strong>
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <div class="page">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="brand"><span class="dot"></span> KasirPro</div>
+      <nav class="nav">
+        <a href="{{ url_for('dashboard.index') }}"><i class="fas fa-home fa-fw"></i> Dashboard</a>
+        <a href="{{ url_for('pembayaran.pembayaran') }}"><i class="fas fa-money-bill fa-fw"></i> Pembayaran</a>
+        <a href="{{ url_for('laporan.output_barang') }}"><i class="fas fa-chart-bar fa-fw"></i> Laporan</a>
+        <a href="{{ url_for('kalkulator.halaman_kalkulator') }}"><i class="fas fa-calculator fa-fw"></i> Kalkulator</a>
+        <a href="{{ url_for('input_barang.input_barang') }}"><i class="fas fa-plus-circle fa-fw"></i> Input Barang</a>
+        <a href="{{ url_for('stock.halaman_stock') }}"><i class="fas fa-boxes fa-fw"></i> Stock</a>
+        <a href="{{ url_for('kategori.daftar_kategori') }}"><i class="fas fa-tags fa-fw"></i> Kategori</a>
+        <a href="{{ url_for('transaksi.daftar_transaksi') }}"><i class="fas fa-exchange-alt fa-fw"></i> Transaksi</a>
+        <a href="{{ url_for('pelanggan.halaman_pelanggan') }}"><i class="fas fa-users fa-fw"></i> Pelanggan</a>
+        <a href="{{ url_for('pengaturan.pengaturan') }}" class="active"><i class="fas fa-cog fa-fw"></i> Pengaturan</a>
+        <a href="{{ url_for('auth.logout') }}"><i class="fas fa-sign-out-alt fa-fw"></i> Logout</a>
+      </nav>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+      <div class="pengaturan-body">
+
+        <!-- SIDEBAR PENGATURAN -->
+        <div class="peng-sidebar">
+          <a class="peng-nav-item" href="{{ url_for('pengaturan.pengaturan') }}">
+            <i class="fas fa-user"></i> Profil Pengguna
+          </a>
+          <a class="peng-nav-item" href="{{ url_for('pengaturan.data_perusahaan') }}">
+            <i class="fas fa-building"></i> Data Perusahaan
+          </a>
+          <a class="peng-nav-item" href="{{ url_for('auth.change_password') }}">
+            <i class="fas fa-lock"></i> Keamanan
+          </a>
+          <a class="peng-nav-item" href="{{ url_for('pengaturan.halaman_backup_restore') }}">
+            <i class="fas fa-database"></i> Backup & Restore
+          </a>
+          <a class="peng-nav-item active" href="{{ url_for('pengaturan.integrasi') }}">
+            <i class="fas fa-plug"></i> Integrasi
+          </a>
+        </div>
+
+        <!-- CONTENT -->
+        <div class="peng-content">
+
+          <!-- STAT CARDS -->
+          <div class="cards">
+            <div class="stat-card">
+              <h3>Printer</h3>
+              <h1>{{ printers | length }}</h1>
+              <p>Perangkat terdaftar</p>
+            </div>
+
+            <!-- ✅ Status berdasarkan data printer pertama -->
+            <div class="stat-card {{ 'green' if printers and printers[0].status == 'online' else 'red' }}">
+              <h3>Status</h3>
+              <h1>{{ printers[0].status | capitalize if printers else 'N/A' }}</h1>
+              <p>Printer utama</p>
+            </div>
+
+            <div class="stat-card yellow">
+              <h3>Scanner</h3>
+              <h1>{{ scanners | length }}</h1>
+              <p>Perangkat terdaftar</p>
+            </div>
+
+            <!-- ✅ Status berdasarkan data scanner pertama -->
+            <div class="stat-card {{ 'green' if scanners and scanners[0].status == 'online' else 'red' }}">
+              <h3>Status</h3>
+              <h1>{{ scanners[0].status | capitalize if scanners else 'N/A' }}</h1>
+              <p>Scanner utama</p>
+            </div>
+          </div>
+
+          <!-- DAFTAR PRINTER -->
+          <div class="box">
+            <div class="box-header">
+              <h2>Printer Kasir</h2>
+              <button class="btn-add" type="button">
+                <i class="fas fa-plus"></i> Tambah Printer
+              </button>
+            </div>
+            <div class="box-body">
+              <!-- ✅ Loop dari data printer yang dikirim route -->
+              {% for printer in printers %}
+              <div class="printer-item {{ 'active' if printer.default }}">
+                <div>
+                  <h4>
+                    {{ printer.nama }}
+                    {% if printer.default %}
+                      <span class="badge-default">Default</span>
+                    {% endif %}
+                  </h4>
+                  <p>Model: {{ printer.model }} · Port: {{ printer.port }}</p>
+                  <p>Kertas: {{ printer.kertas }}</p>
+                </div>
+                <span class="status {{ printer.status }}">
+                  {{ printer.status | capitalize }}
+                </span>
+              </div>
+              {% else %}
+              <p style="color:#6b7280; text-align:center; padding:20px;">
+                Belum ada printer terdaftar
+              </p>
+              {% endfor %}
+            </div>
+          </div>
+
+          <!-- PENGATURAN PRINTER -->
+          <div class="box">
+            <div class="box-header">
+              <h2>Pengaturan Printer</h2>
+            </div>
+            <div class="box-body">
+
+              <form method="POST" action="{{ url_for('pengaturan.integrasi') }}">
+
+                <div class="form-settings">
+                  <div>
+                    <label>Port Koneksi</label>
+                    <!-- ✅ Value dari database/JSON, bukan hardcode -->
+                    <input type="text" name="port_koneksi"
+                           value="{{ pengaturan_printer.port_koneksi }}">
+                  </div>
+                  <div>
+                    <label>Baud Rate</label>
+                    <input type="text" name="baud_rate"
+                           value="{{ pengaturan_printer.baud_rate }}">
+                  </div>
+                  <div>
+                    <label>Lebar Kertas</label>
+                    <input type="text" name="lebar_kertas"
+                           value="{{ pengaturan_printer.lebar_kertas }}">
+                  </div>
+                  <div>
+                    <label>Karakter Per Baris</label>
+                    <input type="text" name="karakter_per_baris"
+                           value="{{ pengaturan_printer.karakter_per_baris }}">
+                  </div>
+                </div>
+
+                <!-- ✅ Checked state dari database/JSON -->
+                <div class="toggle-row">
+                  <label>Auto Cut Kertas</label>
+                  <input type="checkbox" name="auto_cut"
+                         {{ 'checked' if pengaturan_printer.auto_cut }}>
+                </div>
+
+                <div class="toggle-row">
+                  <label>Buka Laci Kasir</label>
+                  <input type="checkbox" name="buka_laci"
+                         {{ 'checked' if pengaturan_printer.buka_laci }}>
+                </div>
+
+                <div class="toggle-row">
+                  <label>Bunyi Saat Cetak</label>
+                  <input type="checkbox" name="bunyi_cetak"
+                         {{ 'checked' if pengaturan_printer.bunyi_cetak }}>
+                </div>
+
+                <div class="box-actions">
+                  <button type="submit" class="btn-save">
+                    <i class="fas fa-save"></i> Simpan Pengaturan
+                  </button>
+                  <button type="button" class="btn-danger">
+                    <i class="fas fa-unlink"></i> Putuskan
+                  </button>
+                </div>
+
+              </form>
+            </div>
+          </div>
+
+        </div><!-- /.peng-content -->
+      </div><!-- /.pengaturan-body -->
+    </main>
+  </div><!-- /.page -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

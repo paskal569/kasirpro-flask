@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %} Daftar Transaksi {% endblock %}</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/transaksi.css') }}">
+  <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+
+  <style>
+    /* ── Badge Status ── */
+    .badge-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .3px;
+    }
+    .badge-selesai { background: #d1fae5; color: #065f46; }
+    .badge-batal   { background: #fee2e2; color: #991b1b; }
+    .badge-pending { background: #fef3c7; color: #92400e; }
+
+    /* ── Pagination ── */
+    .pagination-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 24px;
+      border-top: 1px solid #f3f4f6;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .pagination-info { font-size: 13px; color: #6b7280; }
+    .pagination { margin: 0; }
+    .page-link {
+      color: #2563eb;
+      border-color: #e5e7eb;
+      font-size: 13px;
+      padding: 5px 12px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .page-item.active .page-link {
+      background: #2563eb;
+      border-color: #2563eb;
+    }
+    .page-link:focus { box-shadow: none; }
+
+    /* ── Per-page select ── */
+    .per-page-select {
+      font-size: 13px;
+      color: #374151;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 4px 10px;
+      outline: none;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="dot"></span>
+      KasirPro
+    </div>
+    <nav class="nav">
+       <a href="{{ url_for('dashboard.index') }}" class="active"><i class="fas fa-home fa-fw"></i> Dashboard</a>
+        <a href="{{ url_for('pembayaran.pembayaran') }}"><i class="fas fa-money-bill fa-fw"></i> Pembayaran</a>
+        <a href="{{ url_for('laporan.output_barang') }}"><i class="fas fa-chart-bar fa-fw"></i> Laporan</a>
+        <a href="{{ url_for('kalkulator.halaman_kalkulator') }}"><i class="fas fa-calculator fa-fw"></i> Kalkulator</a>
+        <a href="{{ url_for('input_barang.input_barang') }}"><i class="fas fa-plus-circle fa-fw"></i> Input Barang</a>
+        <a href="{{ url_for('stock.halaman_stock') }}"><i class="fas fa-boxes fa-fw"></i> Stock</a>
+        <a href="{{ url_for('kategori.daftar_kategori') }}"><i class="fas fa-tags fa-fw"></i> Kategori</a>
+        <a href="{{ url_for('transaksi.daftar_transaksi') }}"><i class="fas fa-exchange-alt fa-fw"></i> Transaksi</a>
+        <a href="{{ url_for('pelanggan.halaman_pelanggan') }}"><i class="fas fa-users fa-fw"></i> Pelanggan</a>
+       <a href="{{ url_for('pengaturan.pengaturan') }}"><i class="fas fa-cog fa-fw"></i> Pengaturan</a>
+        <a href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">
+          <i class="fas fa-sign-out-alt fa-fw"></i> Logout
+        </a>
+    </nav>
+  </aside>
+
+  <!-- HEADER -->
+  <header class="page-header">
+    <h1 class="page-header__title">Daftar Transaksi</h1>
+    <p class="page-header__subtitle">Kelola dan pantau semua transaksi penjualan</p>
+  </header>
+
+  <!-- FLASH MESSAGES -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3"
+             role="alert"
+             style="z-index:9999;min-width:340px;border-radius:10px;text-align:center;box-shadow:0 4px 15px rgba(0,0,0,.15)">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <!-- KONTEN UTAMA -->
+  <main class="page-content">
+    <div class="table-card">
+
+      <!-- Header: judul + search + per-page -->
+      <div class="table-card__header">
+        <span class="table-card__title">Daftar Transaksi</span>
+
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <!-- Per halaman -->
+          <select class="per-page-select" id="perPageSelect">
+            <option value="10"  {% if per_page == 10  %}selected{% endif %}>10 / halaman</option>
+            <option value="25"  {% if per_page == 25  %}selected{% endif %}>25 / halaman</option>
+            <option value="50"  {% if per_page == 50  %}selected{% endif %}>50 / halaman</option>
+            <option value="100" {% if per_page == 100 %}selected{% endif %}>100 / halaman</option>
+          </select>
+
+          <!-- Search -->
+          <div class="input-group" style="max-width: 380px;">
+            <span class="input-group-text bg-white border-end-0 text-muted">
+              <i class="fas fa-search"></i>
+            </span>
+            <input type="search" id="inputClear"
+                   class="form-control border-start-0 border-end-0 ps-0"
+                   placeholder="Cari transaksi..."
+                   value="{{ request.args.get('q', '') }}" />
+            <button id="btnClear" class="btn btn-outline-secondary border-start-0 border-end-0"
+                    type="button" style="display:none;">
+              <i class="fas fa-times"></i>
+            </button>
+            <button id="btnCari" class="btn btn-primary" type="button">Cari</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabel -->
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Tanggal</th>
+            <th>Nomor Faktur</th>
+            <th>Nama Pelanggan</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for trx in transaksi_list.items %}
+          <tr>
+            <td>{{ trx.created_at.strftime('%d-%m-%Y') }}</td>
+            <td><strong>{{ trx.invoice }}</strong></td>
+            <td>
+              {% if trx.pelanggan %}
+                {{ trx.pelanggan.nama }}
+              {% else %}
+                <span class="text-muted">Umum</span>
+              {% endif %}
+            </td>
+            <td><strong>Rp{{ "{:,.0f}".format(trx.total) }}</strong></td>
+            <td>
+              {% if trx.status == 'selesai' %}
+                <span class="badge-status badge-selesai">
+                  <i class="fas fa-check-circle"></i> Selesai
+                </span>
+              {% elif trx.status == 'batal' %}
+                <span class="badge-status badge-batal">
+                  <i class="fas fa-times-circle"></i> Dibatalkan
+                </span>
+              {% else %}
+                <span class="badge-status badge-pending">
+                  <i class="fas fa-clock"></i> Pending
+                </span>
+              {% endif %}
+            </td>
+            <td class="d-flex gap-1">
+              <!-- Tombol Detail -->
+              <a href="{{ url_for('transaksi.detail', id=trx.id) }}" class="btn btn-sm btn-primary">
+                <i class="fas fa-info-circle"></i> Detail
+              </a>
+
+              <!-- Tombol Batalkan -->
+              {% if trx.status != 'batal' %}
+              <form action="{{ url_for('transaksi.batalkan', id=trx.id) }}" method="POST"
+                    onsubmit="return confirm('Yakin ingin membatalkan transaksi {{ trx.invoice }}? Stok barang akan dikembalikan.')"
+                    style="display:inline;">
+                <button type="submit" class="btn btn-sm btn-danger">
+                  <i class="fas fa-undo"></i> Batalkan
+                </button>
+              </form>
+              {% endif %}
+
+              <!-- Tombol Cetak -->
+              {% if trx.status == 'selesai' %}
+              <a href="{{ url_for('transaksi.cetak', id=trx.id) }}" class="btn btn-sm btn-success">
+                <i class="fas fa-print"></i> Cetak
+              </a>
+              {% endif %}
+            </td>
+          </tr>
+          {% else %}
+          <tr id="noResult">
+            <td colspan="6" class="text-center text-muted py-4">
+              <i class="fas fa-inbox me-2"></i>Belum ada transaksi
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <!-- Pagination -->
+      {% if transaksi_list.pages > 1 %}
+      <div class="pagination-wrapper">
+        <span class="pagination-info">
+          Menampilkan
+          <strong>{{ transaksi_list.per_page * (transaksi_list.page - 1) + 1 }}</strong>
+          –
+          <strong>{{ [transaksi_list.per_page * transaksi_list.page, transaksi_list.total] | min }}</strong>
+          dari <strong>{{ transaksi_list.total }}</strong> transaksi
+        </span>
+
+        <nav>
+          <ul class="pagination pagination-sm mb-0">
+            <!-- Prev -->
+            <li class="page-item {% if not transaksi_list.has_prev %}disabled{% endif %}">
+              <a class="page-link" href="{{ url_for('transaksi.daftar_transaksi', page=transaksi_list.prev_num, per_page=per_page, q=request.args.get('q','')) }}">
+                <i class="fas fa-chevron-left"></i>
+              </a>
+            </li>
+
+            <!-- Page numbers -->
+            {% for p in transaksi_list.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+              {% if p %}
+                <li class="page-item {% if p == transaksi_list.page %}active{% endif %}">
+                  <a class="page-link" href="{{ url_for('transaksi.daftar_transaksi', page=p, per_page=per_page, q=request.args.get('q','')) }}">
+                    {{ p }}
+                  </a>
+                </li>
+              {% else %}
+                <li class="page-item disabled"><span class="page-link">…</span></li>
+              {% endif %}
+            {% endfor %}
+
+            <!-- Next -->
+            <li class="page-item {% if not transaksi_list.has_next %}disabled{% endif %}">
+              <a class="page-link" href="{{ url_for('transaksi.daftar_transaksi', page=transaksi_list.next_num, per_page=per_page, q=request.args.get('q','')) }}">
+                <i class="fas fa-chevron-right"></i>
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+      {% endif %}
+
+    </div><!-- /.table-card -->
+
+    <!-- Detail Transaksi (opsional) -->
+    {% if transaksi %}
+    <div class="detail mt-4">
+      <div class="transaksi">
+        <span class="page-header__title">Riwayat Transaksi</span>
+        <p class="page-header__subtitle">Lihat detail transaksi</p>
+
+        <div style="width:100%;border-radius:8px;border:1px #E5E7EB solid;overflow:hidden;">
+          <div class="transaksi__header d-flex p-3 bg-light fw-semibold border-bottom">
+            <span class="flex-fill">Tanggal</span>
+            <span class="flex-fill">Nomor Belanja</span>
+            <span class="flex-fill">Jumlah</span>
+            <span class="flex-fill">Total</span>
+          </div>
+          <div class="transaksi__body d-flex p-3">
+            <span class="flex-fill">{{ transaksi.created_at.strftime('%d-%m-%Y') }}</span>
+            <span class="flex-fill">{{ transaksi.invoice }}</span>
+            <span class="flex-fill">{{ transaksi.jumlah }}</span>
+            <span class="flex-fill">Rp{{ "{:,.0f}".format(transaksi.total) }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+  </main>
+
+  <!-- Modal Logout -->
+  <div class="modal fade" id="logoutmodal" tabindex="-1" aria-labelledby="logoutmodalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="logoutmodalLabel">Logout</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          Apakah anda yakin ingin logout?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+          <a href="{{ url_for('auth.logout') }}" class="btn btn-primary">OK</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+  <script src="{{ url_for('static', filename='js/transaksi.js') }}"></script>
+  <script>
+    // Search
+    const input    = document.getElementById('inputClear');
+    const btnClear = document.getElementById('btnClear');
+    const btnCari  = document.getElementById('btnCari');
+
+    input.addEventListener('input', () => {
+      btnClear.style.display = input.value ? 'block' : 'none';
+    });
+    btnClear.addEventListener('click', () => {
+      input.value = '';
+      btnClear.style.display = 'none';
+      window.location.href = "{{ url_for('transaksi.daftar_transaksi') }}";
+    });
+    btnCari.addEventListener('click', () => {
+      const q = input.value.trim();
+      if (q) window.location.href = `{{ url_for('transaksi.daftar_transaksi') }}?q=${encodeURIComponent(q)}`;
+    });
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter') btnCari.click();
+    });
+
+    // Per halaman
+    document.getElementById('perPageSelect').addEventListener('change', function () {
+      window.location.href = `{{ url_for('transaksi.daftar_transaksi') }}?per_page=${this.value}`;
+    });
+  </script>
+
+</body>
+</html>

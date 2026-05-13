@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kategori — KasirPro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/kategori.css') }}" />
+</head>
+<body>
+
+  <!-- FLASH MESSAGES -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="toast-container">
+        {% for category, message in messages %}
+          <div class="toast toast--{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+            <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'error' %}exclamation-circle{% elif category == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %}"></i>
+            {{ message }}
+            <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <div class="page">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="dot"></span>
+        KasirPro
+      </div>
+      <nav class="nav">
+        <a href="{{ url_for('dashboard.index') }}"><i class="fas fa-home fa-fw"></i> Dashboard</a>
+        <a href="{{ url_for('pembayaran.pembayaran') }}"><i class="fas fa-money-bill fa-fw"></i> Pembayaran</a>
+        <a href="{{ url_for('laporan.output_barang') }}"><i class="fas fa-chart-bar fa-fw"></i> Laporan</a>
+        <a href="{{ url_for('kalkulator.halaman_kalkulator') }}"><i class="fas fa-calculator fa-fw"></i> Kalkulator</a>
+        <a href="{{ url_for('input_barang.input_barang') }}"><i class="fas fa-plus-circle fa-fw"></i> Input Barang</a>
+        <a href="{{ url_for('stock.halaman_stock') }}"><i class="fas fa-boxes fa-fw"></i> Stock</a>
+        <a href="{{ url_for('kategori.daftar_kategori') }}" class="active"><i class="fas fa-tags fa-fw"></i> Kategori</a>
+        <a href="{{ url_for('transaksi.daftar_transaksi') }}"><i class="fas fa-exchange-alt fa-fw"></i> Transaksi</a>
+        <a href="{{ url_for('pelanggan.halaman_pelanggan') }}"><i class="fas fa-users fa-fw"></i> Pelanggan</a>
+        <a href="#"><i class="fas fa-cog fa-fw"></i> Pengaturan</a>
+        <a href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">
+          <i class="fas fa-sign-out-alt fa-fw"></i> Logout
+        </a>
+      </nav>
+    </aside>
+
+    <!-- HEADER -->
+    <header class="page-header">
+      <div class="page-header__left">
+        <h1 class="page-header__title">Daftar Kategori</h1>
+        <p class="page-header__subtitle">Kelola dan pantau semua kategori barang</p>
+      </div>
+      <div class="page-header__right">
+        <div class="topbar__notif">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M8 1a5 5 0 00-5 5v2.17l-1.4 2.1A1 1 0 002.44 12H5.5a2.5 2.5 0 005 0h3.06a1 1 0 00.84-1.54L13 8.17V6a5 5 0 00-5-5z"/>
+          </svg>
+          <span class="topbar__notif-dot"></span>
+        </div>
+        <div class="topbar__avatar">
+     <span class="topbar__avatar-initials">
+      {{ session.get('username', 'User')[0] | upper }}
+    </span>
+    <span class="topbar__avatar-name">{{ session.get('username', 'User') | upper }}</span>
+  </div>
+      </div>
+    </header>
+
+    <!-- MAIN -->
+    <main class="page-content">
+
+      <!-- STAT CARDS -->
+      <div class="stat-grid">
+        <div class="stat-card stat-card--primary">
+          <div class="stat-card__label">Total Kategori</div>
+          <div class="stat-card__value">{{ total_kategori }}</div>
+          <div class="stat-card__sub">Semua kategori</div>
+        </div>
+        <div class="stat-card stat-card--success">
+          <div class="stat-card__label">Aktif</div>
+          <div class="stat-card__value">{{ total_aktif }}</div>
+          <div class="stat-card__sub">Berjalan normal</div>
+        </div>
+        <div class="stat-card stat-card--danger">
+          <div class="stat-card__label">Nonaktif</div>
+          <div class="stat-card__value">{{ total_nonaktif }}</div>
+          <div class="stat-card__sub">Perlu perhatian</div>
+        </div>
+        <div class="stat-card stat-card--purple">
+          <div class="stat-card__label">Total Produk</div>
+          <div class="stat-card__value">{{ total_produk }}</div>
+          <div class="stat-card__sub">Di semua kategori</div>
+        </div>
+      </div>
+
+      <!-- CARD TABEL -->
+      <div class="card">
+        <div class="card__accent card__accent--primary"></div>
+        <div class="card__header">
+          <div class="card__header-left">
+            <span class="card__header-title">Semua Kategori</span>
+            <span class="card__header-meta" id="jumlahLabel">{{ total_kategori }} kategori</span>
+          </div>
+        </div>
+
+        <div class="card__body">
+
+          <!-- SEARCH -->
+          <div class="search-wrapper">
+            <div class="search-inner">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M6.5 1a5.5 5.5 0 104.2 9.02l3.14 3.14a.75.75 0 001.06-1.06L11.76 8.96A5.5 5.5 0 006.5 1zm-4 5.5a4 4 0 118 0 4 4 0 01-8 0z"/>
+              </svg>
+              <input type="text" id="searchInput" placeholder="Cari nama kategori...">
+            </div>
+          </div>
+
+          <!-- CHIP FILTER -->
+          <div class="chip-group" id="chipGroup">
+            <button class="chip active" data-filter="semua">Semua</button>
+            <button class="chip" data-filter="aktif">
+              <span class="chip-dot" style="background:var(--color-success)"></span>Aktif
+            </button>
+            <button class="chip" data-filter="nonaktif">
+              <span class="chip-dot" style="background:var(--color-text-muted)"></span>Nonaktif
+            </button>
+          </div>
+
+          <!-- TABEL -->
+          <table class="kategori-table" id="kategoriTable">
+            <thead>
+              <tr>
+                <th style="width:40px">#</th>
+                <th>Nama Kategori</th>
+                <th>Jumlah Barang</th>
+                <th>Status</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for kat in kategori %}
+              <tr data-status="{{ 'nonaktif' if kat.nonaktif else 'aktif' }}" data-nama="{{ kat.nama | lower }}">
+                <td style="color:var(--color-text-muted);font-size:12px">{{ loop.index }}</td>
+                <td>
+                  <div class="cat-cell">
+                    <!-- FIX: hapus duplikasi div cat-icon -->
+                    <div class="cat-icon" style="background:{{ kat.warna }}22">
+                      <i class="fas {{ kat.icon if kat.icon else 'fa-box' }}" style="color:{{ kat.warna }}"></i>
+                    </div>
+                    <div>
+                      <div class="cat-name">{{ kat.nama }}</div>
+                      <div class="cat-desc">{{ kat.deskripsi or '-' }}</div>
+                    </div>
+                  </div>
+                </td>
+                <td>{{ kat.jumlah_produk }} barang</td>
+                <td>
+                  {% if kat.nonaktif %}
+                  <span class="badge badge--nonaktif">
+                    <span class="badge__dot"></span> Nonaktif
+                  </span>
+                  {% else %}
+                  <span class="badge badge--aktif">
+                    <span class="badge__dot"></span> Aktif
+                  </span>
+                  {% endif %}
+                </td>
+                <td>
+                  <div class="btn-group">
+                    <a href="{{ url_for('kategori.edit_kategori', id=kat.id) }}"
+                       class="btn btn--outline btn--sm">
+                      <i class="fas fa-edit"></i> Edit
+                    </a>
+                    <form action="{{ url_for('kategori.hapus_kategori', id=kat.id) }}"
+                          method="POST" style="display:inline"
+                          onsubmit="return confirm('Hapus kategori {{ kat.nama }}?')">
+                      <button type="submit" class="btn btn--danger btn--sm">
+                        <i class="fas fa-trash"></i> Hapus
+                      </button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+              {% else %}
+              <tr id="emptyRow">
+                <td colspan="5" style="text-align:center;color:var(--color-text-muted);padding:40px 14px">
+                  <i class="fas fa-tags" style="font-size:28px;margin-bottom:10px;display:block;opacity:0.25"></i>
+                  Belum ada kategori.
+                  <a href="{{ url_for('kategori.tambah_kategori') }}" style="color:#2B5CE6;font-weight:600;margin-left:4px">Tambah sekarang</a>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+
+          <!-- Pesan kosong saat filter/search tidak ada hasil -->
+          <div id="noResultMsg" style="display:none; text-align:center; color:var(--color-text-muted); padding:40px 14px;">
+            <i class="fas fa-search" style="font-size:28px; margin-bottom:10px; display:block; opacity:0.25;"></i>
+            Tidak ada kategori yang cocok.
+          </div>
+
+        </div>
+      </div>
+    </main>
+  </div>
+
+  
+  <!-- MODAL LOGOUT -->
+  <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="logoutModalLabel">Logout</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">Apakah anda yakin ingin logout?</div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+          <a href="{{ url_for('auth.logout') }}" class="btn btn-primary">OK</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+  <script src="{{ url_for('static', filename='js/kategori.js') }}"></script>
+
+</body>
+</html>

@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% block title %}KasirPro - Dashboard{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+</head>
+<body>
+
+  <!-- ══ FLASH MESSAGES ══ -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3"
+             role="alert"
+             style="position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:99999;
+                    min-width:350px;max-width:500px;width:auto;
+                    box-shadow:0 4px 15px rgba(0,0,0,0.2);border-radius:10px;text-align:center;">
+          <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'error' %}exclamation-circle{% elif category == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %} me-2"></i>
+          <strong>{{ message }}</strong>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <div class="page">
+
+    <!-- ══ SIDEBAR ══ -->
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="dot"></span>
+        KasirPro
+      </div>
+      <nav class="nav">
+        <a href="{{ url_for('dashboard.index') }}" class="active"><i class="fas fa-home fa-fw"></i> Dashboard</a>
+        <a href="{{ url_for('pembayaran.pembayaran') }}"><i class="fas fa-money-bill fa-fw"></i> Pembayaran</a>
+        <a href="{{ url_for('laporan.output_barang') }}"><i class="fas fa-chart-bar fa-fw"></i> Laporan</a>
+        <a href="{{ url_for('kalkulator.halaman_kalkulator') }}"><i class="fas fa-calculator fa-fw"></i> Kalkulator</a>
+        <a href="{{ url_for('input_barang.input_barang') }}"><i class="fas fa-plus-circle fa-fw"></i> Input Barang</a>
+        <a href="{{ url_for('stock.halaman_stock') }}"><i class="fas fa-boxes fa-fw"></i> Stock</a>
+        <a href="{{ url_for('kategori.daftar_kategori') }}"><i class="fas fa-tags fa-fw"></i> Kategori</a>
+        <a href="{{ url_for('transaksi.daftar_transaksi') }}"><i class="fas fa-exchange-alt fa-fw"></i> Transaksi</a>
+        <a href="{{ url_for('pelanggan.halaman_pelanggan') }}"><i class="fas fa-users fa-fw"></i> Pelanggan</a>
+       <a href="{{ url_for('pengaturan.pengaturan') }}"><i class="fas fa-cog fa-fw"></i> Pengaturan</a>
+        <a href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">
+          <i class="fas fa-sign-out-alt fa-fw"></i> Logout
+        </a>
+      </nav>
+    </aside>
+
+    <!-- ══ KONTEN UTAMA ══ -->
+    <main class="main">
+
+      <!-- Topbar -->
+      <section class="topbar">
+        <div>
+          <h1>Dashboard Kasir</h1>
+          <div class="footer-note">
+            Ringkasan hari ini · Update terakhir
+            <span id="update-time">00:00</span> WIB
+          </div>
+        </div>
+        <div class="top-actions">
+          <button class="btn-outline" onclick="unduhLaporan()">Unduh Laporan</button>
+          <button class="btn-primary" data-bs-toggle="modal" data-bs-target="#modalTransaksi">
+            <i class="fas fa-plus fa-fw"></i> Tambah Fitur
+          </button>
+          <button class="btn-danger" onclick="resetAll()">Reset</button>
+        </div>
+      </section>
+
+      <!-- Stats Atas -->
+      <section class="grid stats">
+        <div class="card">
+          <h3>Omzet Hari Ini</h3>
+          <div class="value" id="omzet-hari-ini">Rp {{ "{:,.0f}".format(omset | default(0)) }}</div>
+        </div>
+        <div class="card">
+          <h3>Transaksi</h3>
+          <div class="value" id="transaksi-hari-ini">{{ jumlah_transaksi | default(0) }}</div>
+        </div>
+        <div class="card">
+          <h3>Barang Terjual</h3>
+          <div class="value" id="barang-terjual">{{ barang_terjual | default(0) }} pcs</div>
+        </div>
+        <div class="card">
+          <h3>Stok Menipis</h3>
+          <div class="value" id="stok-menipis">{{ stok_menipis | default(0) }} item</div>
+        </div>
+      </section>
+
+      <!-- Grid Tengah -->
+      <section class="grid layout">
+
+        <!-- Menu Favorit -->
+        <div class="card">
+          <h2 class="section-title">Menu Favorit</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Produk</th>
+                <th>Kategori</th>
+                <th>Terjual</th>
+              </tr>
+            </thead>
+            <tbody id="menu-body">
+              {% for item in produk_favorit %}
+              <tr>
+                <td>{{ item.nama }}</td>
+                <td><span class="tag">{{ item.kategori }}</span></td>
+                <td>{{ item.terjual }}</td>
+              </tr>
+              {% else %}
+              <tr>
+                <td colspan="3" style="text-align:center; color:gray;">Belum ada data</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Kalkulator & Input Barang -->
+        <div class="card">
+          <h2 class="section-title">Kalkulator & Input Barang</h2>
+          <div>
+            <div id="pesan-global" class="pesan-global"></div>
+            <div class="mini-grid">
+              <input type="text"   id="nama"   name="nama"   placeholder="Nama barang">
+              <input type="number" id="harga"  name="harga"  placeholder="Harga (Rp)" min="0">
+              <input type="number" id="diskon" name="diskon" placeholder="Diskon (Rp)" min="0">
+              <select name="kategori" id="kategori">
+                <option value="">Pilih kategori</option>
+                {% for item in kategori %}
+                <option value="{{ item.id }}">{{ item.nama }}</option>
+                {% endfor %}
+              </select>
+              <input type="number" id="jumlah" name="jumlah" placeholder="Jumlah" min="0">
+              <button type="button" class="btn-primary" onclick="hitungDanSimpan()">Hitung dan Simpan</button>
+              <button type="button" class="btn-primary" onclick="bayarDanCatat()">Bayar dan Catat</button>
+            </div>
+            <div class="footer-note">Total perkiraan: <strong id="total" class="value">Rp 0</strong></div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- Stats Bawah -->
+      <section class="grid stats" style="margin-top: 18px">
+        <div class="card">
+          <h3>Laporan Laba Rugi</h3>
+          <div class="value" style="color: var(--good)">Rp {{ "{:,.0f}".format(laba_rugi | default(0)) }}</div>
+        </div>
+        <div class="card">
+          <h3>Sisa Stok Minuman</h3>
+          <div class="value" style="color: var(--good)">{{ sisa_stok_minuman | default(0) }} item</div>
+        </div>
+        <div class="card">
+          <h3>Stok Snack</h3>
+          <div class="value" style="color: var(--good)">{{ stok_snack | default(0) }} item</div>
+        </div>
+        <div class="card">
+          <h3>Kesiapan Berkas</h3>
+          <div class="value" style="color: var(--good)">{{ kesiapan_berkas | default(0) }} item</div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ══ MODAL TAMBAH TRANSAKSI ══ -->
+  <!-- FIX: ID modal disamakan — sebelumnya btn pakai #modalTransaksi tapi modal pakai #tambahTransaksiModal -->
+  <div class="modal fade" id="modalTransaksi" tabindex="-1" aria-labelledby="modalTransaksiLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalTransaksiLabel">Tambah Fitur</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form action="{{ url_for('dashboard.tambah_transaksi') }}" method="post">
+            <div class="mb-3">
+              <label class="form-label">Item</label>
+              <label for="fitur">Pilih Fitur:</label>
+              <select name="fitur" id="fitur">
+              <option value="">-- Pilih --</option>
+              <option value="memo">Memo</option>
+              <option value="kalender">Kalender</option>
+              <option value="jam">Jam</option>
+             </select>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Tambah</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ MODAL LOGOUT ══ -->
+  <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="logoutModalLabel">Logout</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          Apakah anda yakin ingin logout?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+          <a href="{{ url_for('auth.logout') }}" class="btn btn-primary">OK</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SCRIPTS ══ -->
+  <!-- FIX: Bootstrap hanya di-load sekali (sebelumnya ada 2x) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+
+  <script>
+    // ── Auto update jam ──────────────────────────────────
+    function updateWaktu() {
+      const now   = new Date();
+      const jam   = String(now.getHours()).padStart(2, '0');
+      const menit = String(now.getMinutes()).padStart(2, '0');
+      const el    = document.getElementById('update-time');
+      if (el) el.textContent = jam + ':' + menit;
+    }
+    document.addEventListener('DOMContentLoaded', function () {
+      updateWaktu();
+      setInterval(updateWaktu, 60000);
+    });
+  </script>
+
+</body>
+</html>

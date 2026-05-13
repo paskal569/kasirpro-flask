@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>{% block title %}Loading{% endblock %}</title>
+
+<meta name="description" content="Memproses permintaan, mohon tunggu...">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+<form action="{{ url_for('pembayaran_proses') }}" method="post" id="loadingForm">
+<input type="hidden" name="nomor_faktur" value="{{ nomor_faktur }}">
+<!-- Loading Overlay -->
+<!-- Loading Overlay (dari loading_konfirmasi) -->
+<div id="loadingOverlay" style="display:none; position:fixed; top:0; left:0; 
+     width:100%; height:100%; z-index:9999;
+     background:radial-gradient(circle at top,#1e293b,#020617);
+     justify-content:center; align-items:center; flex-direction:column;">
+    <div class="loading-konfirmasi">
+        <div class="loading"></div>
+        <p style="color:#fff; font-size:15px; font-weight:500; margin-top:16px;">
+            Memproses pembayaran...
+        </p>
+    </div>
+</form>
+</div>
+
+</main>
+<script src="{{ url_for('static', filename='js/loading_konfirmasi.js') }}"></script>
+<script>
+    
+  const params = new URLSearchParams(window.location.search);
+  const next = params.get('next') || '/';
+
+  setTimeout(() => {
+    window.location.href = next;
+  }, 1500); // 1.5 detik loading
+</script>
+</body>
+</html>

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Kalkulator{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/kalkulator.css') }}">
+</head>
+<body>
+  <div class="page">
+
+    <!-- ══ SIDEBAR ══ -->
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="dot"></span>
+        KasirPro
+      </div>
+      <nav class="nav">
+      <a href="{{ url_for('dashboard.index') }}"><i class="fas fa-home fa-fw"></i> Dashboard</a>
+      <a href="{{ url_for('pembayaran.pembayaran') }}"><i class="fas fa-money-bill fa-fw"></i> Pembayaran</a>
+      <a href="{{ url_for('laporan.output_barang') }}"><i class="fas fa-chart-bar fa-fw"></i> Laporan</a>
+      <a href="{{ url_for('kalkulator.halaman_kalkulator') }}"><i class="fas fa-calculator fa-fw"></i> Kalkulator</a>
+      <a href="{{ url_for('input_barang.input_barang') }}"><i class="fas fa-plus-circle fa-fw"></i> Input Barang</a>
+      <a href="{{ url_for('stock.halaman_stock') }}"><i class="fas fa-boxes fa-fw"></i> Stock</a>
+      <a href="{{ url_for('kategori.daftar_kategori') }}"><i class="fas fa-tags fa-fw"></i> Kategori</a>
+      <a href="{{ url_for('transaksi.daftar_transaksi') }}" class="active"><i class="fas fa-exchange-alt fa-fw"></i> Transaksi</a>
+      <a href="{{ url_for('pelanggan.halaman_pelanggan') }}"><i class="fas fa-users fa-fw"></i> Pelanggan</a>
+      <a href="#"><i class="fas fa-cog fa-fw"></i> Pengaturan</a>
+      <a href="{{ url_for('auth.logout') }}">
+          <i class="fas fa-sign-out-alt fa-fw"></i> Logout
+        </a>
+      </nav>
+    </aside>
+
+    <!-- ══ KONTEN UTAMA ══ -->
+    <main class="main">
+      <form action="{{ url_for('kalkulator.halaman_kalkulator') }}" method="POST">
+        <section class="input-barang">
+          <header>
+            <h1>Kalkulator Kasir</h1>
+            <p>Hitung jumlah pembayaran pelanggan.</p>
+          </header>
+          <div class="form-group">
+            <label for="nama-barang">Nama Barang</label>
+            <input type="text" id="nama-barang" name="nama_barang" class="form-control"
+              placeholder="Contoh: Kopi Susu" required>
+          </div>
+          <div class="form-group">
+            <label for="jumlah-barang">Jumlah Barang</label>
+            <input type="number" id="jumlah-barang" name="jumlah_barang" class="form-control"
+              placeholder="Contoh: 2" required>
+          </div>
+          <div class="form-group">
+            <label for="nama-pembeli">Nama Pembeli</label>
+            <input type="text" id="nama-pembeli" name="nama_pembeli" class="form-control"
+              placeholder="Contoh: John Doe" required>
+          </div>
+        </section>
+
+        <!-- ══ KALKULATOR + SUMMARY (TIDAK DUPLIKAT) ══ -->
+        <div class="calculator-wrapper">
+
+          <!-- Kalkulator -->
+          <section class="calculator-input-section">
+
+            <!-- Display -->
+            <output class="rectangle-2" aria-live="polite" aria-atomic="true">
+              <span class="text-wrapper-2">Display</span>
+              <span class="text-wrapper-3" id="display-value">0</span>
+              <span class="text-wrapper-4">Masukkan Jumlah Bayar</span>
+            </output>
+
+            <!-- Numpad -->
+            <div class="numpad" role="group" aria-label="Numeric keypad">
+              <button class="rectangle-3"  type="button" data-value="7"><span class="text-wrapper-5">7</span></button>
+              <button class="rectangle-4"  type="button" data-value="8"><span class="text-wrapper-6">8</span></button>
+              <button class="rectangle-5"  type="button" data-value="9"><span class="text-wrapper-7">9</span></button>
+              <button class="rectangle-6"  type="button" data-value="4"><span class="text-wrapper-8">4</span></button>
+              <button class="rectangle-7"  type="button" data-value="5"><span class="text-wrapper-9">5</span></button>
+              <button class="rectangle-8"  type="button" data-value="6"><span class="text-wrapper-10">6</span></button>
+              <button class="rectangle-9"  type="button" data-value="1"><span class="text-wrapper-11">1</span></button>
+              <button class="rectangle-10" type="button" data-value="2"><span class="text-wrapper-12">2</span></button>
+              <button class="rectangle-11" type="button" data-value="3"><span class="text-wrapper-13">3</span></button>
+              <button class="rectangle-12" type="button" data-value="0"><span class="text-wrapper-14">0</span></button>
+              <button class="rectangle-13" type="button" data-value="00"><span class="text-wrapper-15">00</span></button>
+              <button class="rectangle-13" type="button" data-value="."><span class="text-wrapper-15">.</span></button>
+              <button class="rectangle-13" type="button" data-value="."><span class="text-wrapper-15">,</span></button>
+              <button class="rectangle-13" type="button" data-value="+"><span class="text-wrapper-15">+</span></button>
+              <button class="rectangle-13" type="button" data-value="-"><span class="text-wrapper-15">-</span></button>
+              <button class="rectangle-13" type="button" data-value="*"><span class="text-wrapper-15">×</span></button>
+              <button class="rectangle-13" type="button" data-value="/"><span class="text-wrapper-15">÷</span></button>
+              <button class="rectangle-13" type="button" data-value="="><span class="text-wrapper-15">=</span></button>
+            </div>
+
+            <!-- Tombol Aksi -->
+            <div class="action-buttons" role="group" aria-label="Action buttons">
+              <button class="rectangle-14" type="button" id="btn-hapus">
+                <span class="text-wrapper-16">⌫ Hapus</span>
+              </button>
+              <button class="rectangle-15" type="button" id="btn-reset">
+                <span class="text-wrapper-17">Reset</span>
+              </button>
+            </div>
+
+          </section>
+
+          <!-- Summary Pembayaran -->
+          <aside class="rectangle-16" aria-label="Payment summary">
+            <dl class="payment-summary">
+              <div class="summary-row">
+                <dt class="text-wrapper-18">Total Belanja:</dt>
+                <dd class="text-wrapper-19" id="total-belanja">Rp 0</dd>
+              </div>
+              <div class="summary-row">
+                <dt class="text-wrapper-20">Jumlah Bayar:</dt>
+                <dd class="text-wrapper-21" id="jumlah-bayar">Rp 0</dd>
+              </div>
+              <div class="summary-row">
+                <dt class="text-wrapper-20">Kembalian:</dt>
+                <dd class="text-wrapper-21" id="kembalian">Rp 0</dd>
+              </div>
+            </dl>
+           <button class="rectangle-17" type="button" id="btn-set-total-pendapatan">
+           <span class="text-wrapper-22">Set Total Belanja</span>
+           </button>
+
+
+            <!-- Tombol Set Bayar — type="button" agar tidak auto-submit -->
+            <button class="rectangle-17" type="button" id="btn-set-bayar">
+              <span class="text-wrapper-22">Set Jumlah Bayar</span>
+            </button>
+
+            <!-- Tombol Masukkan Ke Pendapatan — type="submit" untuk submit form -->
+            <button class="rectangle-17" type="button" id="btn-pendapatan">
+              <span class="text-wrapper-22">Masukkan Ke Pendapatan</span>
+            </button>
+
+          </aside>
+
+        </div><!-- /.calculator-wrapper -->
+
+      </form>
+    </main>
+
+  </div><!-- /.page -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+  <script src="{{ url_for('static', filename='js/kalkulator.js') }}"></script>
+</body>
+</html>

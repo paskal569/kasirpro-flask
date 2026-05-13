@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pembayaran_selesai</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/pembayaran_selesai.css') }}" />
+</head>
+
+<body>
+  <div class="card">
+
+    <!-- Header -->
+    <div class="card-header-bar">Konfirmasi Pembayaran</div>
+
+    <!-- Success block -->
+    <div class="success-block">
+      <div class="success-icon">
+        <i class="fa-solid fa-check"></i>
+      </div>
+      <h1 class="success-title">Pembayaran Berhasil!</h1>
+      <p class="success-sub">Transaksi pembelian Anda telah berhasil diproses</p>
+    </div>
+
+    <!-- Detail transaksi -->
+    <div class="detail-box">
+      <div class="detail-row">
+        <span class="label">No. Transaksi</span>
+        <!-- <span class="value">{{ invoice }}</span> -->
+        <span class="value">{{no_transaksi}}</span>
+      </div>
+      <hr class="detail-divider" />
+      <div class="detail-row">
+        <span class="label">Tanggal & Waktu</span>
+        <!-- <span class="value">{{ created_at.strftime('%d %B %Y, %H:%M') }}</span> -->
+        <span class="value">{{ waktu.strftime('%d %B %Y, %H:%M') }}</span>
+      </div>
+      <hr class="detail-divider" />
+      <div class="detail-row">
+        <span class="label">Metode Pembayaran</span>
+        <!-- <span class="value">{{ payment_method }} · {{ payment_status }}</span> -->
+        <span class="value">Transfer Bank · Lunas</span>
+      </div>
+      <hr class="detail-divider" />
+      <div class="detail-row total">
+        <span class="label">Total Pembayaran</span>
+        <!-- <span class="value">Rp{{ "{:,.0f}".format(total) }}</span> -->
+        <span class="value">Rp{{ "{:,.0f}".format(harga_total) }}</span>
+      </div>
+    </div>
+
+    <!-- Email note -->
+    <div class="email-note">
+      <i class="fa-solid fa-envelope"></i>
+      <span>Bukti pembayaran telah dikirim ke email Anda. Silakan cek inbox atau folder spam.</span>
+    </div>
+
+    <!-- Buttons -->
+    <div class="btn-group-custom">
+      <!-- onclick="window.location.href='{{ url_for('pembayaran') }}'" -->
+      <button class="btn-primary-custom">
+        <i class="fa-solid fa-receipt"></i> Lihat Detail Transaksi
+      </button>
+      <button class="btn-outline-custom">
+        <i class="fa-solid fa-download"></i> Unduh Bukti Pembayaran
+      </button>
+      <button class="btn-ghost-custom" data-bs-toggle="modal" data-bs-target="#logoutmodal">
+        <i class="fa-solid fa-house"></i> Kembali ke Beranda
+      </button>
+    </div>
+<div class="modal fade" id="logoutmodal" tabindex="-1" aria-labelledby="logoutmodalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="logoutmodalLabel">Logout</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Apakah anda yakin ingin logout?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-primary">OK</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/pembayaran_selesai.js') }}"></script>

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Input Barang{% endblock %} </title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/input_barang.css') }}">
+  </head>
+  <body>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show"
+               role="alert" style="position: fixed; top: 20px; left: 50%;
+               transform: translateX(-50%); z-index: 99999;
+               min-width: 350px; max-width: 500px;
+               box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+               border-radius: 10px; text-align: center;">
+            <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'error' %}exclamation-circle{% elif category == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %} me-2"></i>
+            <strong>{{ message }}</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <div class="page">
+
+      <aside class="sidebar">
+        <div class="brand">
+          <span class="dot"></span>
+          KasirPro
+        </div>
+        <nav class="nav">
+      <a href="{{ url_for('dashboard.index') }}"><i class="fas fa-home fa-fw"></i> Dashboard</a>
+      <a href="{{ url_for('pembayaran.pembayaran') }}"><i class="fas fa-money-bill fa-fw"></i> Pembayaran</a>
+      <a href="{{ url_for('laporan.output_barang') }}"><i class="fas fa-chart-bar fa-fw"></i> Laporan</a>
+      <a href="{{ url_for('kalkulator.halaman_kalkulator') }}"><i class="fas fa-calculator fa-fw"></i> Kalkulator</a>
+      <a href="{{ url_for('input_barang.input_barang') }}"><i class="fas fa-plus-circle fa-fw"></i> Input Barang</a>
+      <a href="{{ url_for('stock.halaman_stock') }}"><i class="fas fa-boxes fa-fw"></i> Stock</a>
+      <a href="{{ url_for('kategori.daftar_kategori') }}"><i class="fas fa-tags fa-fw"></i> Kategori</a>
+      <a href="{{ url_for('transaksi.daftar_transaksi') }}" class="active"><i class="fas fa-exchange-alt fa-fw"></i> Transaksi</a>
+      <a href="#"><i class="fas fa-users fa-fw"></i> Pelanggan</a>
+      <a href="#"><i class="fas fa-cog fa-fw"></i> Pengaturan</a>
+      <a href="#" data-bs-toggle="modal" data-bs-target="#logoutmodal">
+        <i class="fas fa-sign-out-alt fa-fw"></i> Logout
+      </a>
+    </nav>
+  </aside>
+
+      <main class="main">
+        <section class="input-barang">
+          <header>
+            <h1>Masukan Nama Barang</h1>
+            <p>Lengkapi data barang agar mudah dikelola.</p>
+          </header>
+
+          <form method="POST" action="{{ url_for('input_barang.input_barang') }}" enctype="multipart/form-data" novalidate>
+            <div class="form-group">
+              <label for="nama-barang">Nama Barang</label>
+              <input type="text" id="nama-barang" name="nama_barang" class="form-control"
+                placeholder="Contoh: Kopi Susu 250ml" required autocomplete="off" />
+              <div class="error-message" id="nama-barang-error" aria-live="polite"></div>
+            </div>
+
+            <div class="form-group">
+              <label for="kode-barang">Kode/Barcode</label>
+              <input type="text" id="kode-barang" name="kode_barang" class="form-control"
+                placeholder="Contoh: BRG-0001" autocomplete="off" />
+              <div class="error-message" id="kode-barang-error" aria-live="polite"></div>
+            </div>
+
+            <div class="form-group">
+              <label for="harga-beli">Harga Beli</label>
+              <input type="number" id="harga-beli" name="harga_beli" class="form-control"
+                placeholder="0" min="0" step="100" required />
+              <div class="error-message" id="harga-beli-error" aria-live="polite"></div>
+            </div>
+
+            <div class="form-group">
+              <label for="harga-jual">Harga Jual</label>
+              <input type="number" id="harga-jual" name="harga_jual" class="form-control"
+                placeholder="0" min="0" step="100" required />
+              <div class="error-message" id="harga-jual-error" aria-live="polite"></div>
+            </div>
+
+            <div class="form-group">
+              <label for="stok">Stok Awal</label>
+              <input type="number" id="stok" name="stok" class="form-control"
+                placeholder="0" min="0" step="1" required />
+              <div class="error-message" id="stok-error" aria-live="polite"></div>
+            </div>
+
+            <div class="form-group">
+              <label for="kategori">Kategori</label>
+              <select name="kategori" id="kategori" class="form-control" required>
+                <option value="" disabled selected>Pilih Kategori</option>
+                <option>Makanan</option>
+                <option>Minuman</option>
+                <option>Snack</option>
+                <option>Perlengkapan Keluarga</option>
+                <option>Sembako</option>
+                <option>Elektronik</option>
+                <option>Alat Tulis</option>
+                <option>Perlengkapan Rumah Tangga</option>
+                <option>Aksesoris</option>
+                <option>Mandi/Pembersihan</option>
+              </select>
+              <div class="error-message" id="kategori-error" aria-live="polite"></div>
+            </div>
+
+            <div class="form-group">
+              <label for="gambar">Gambar Produk</label>
+              <input type="file" id="gambar" name="gambar" class="form-control" accept="image/*" />
+              <div class="error-message" id="gambar-error" aria-live="polite"></div>
+              <div class="image-preview" id="gambar-preview" hidden>
+                <img id="gambar-preview-img" alt="Preview gambar produk" />
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="reset" class="btn-reset">Reset</button>
+              <button type="submit" class="btn-submit">Simpan</button>
+            </div>
+          </form>
+        </section>
+      </main>
+
+      <div class="modal fade" id="logoutmodal" tabindex="-1" aria-labelledby="logoutmodalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="logoutmodalLabel">Logout</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Apakah anda yakin ingin logout?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+        <a href="{{ url_for('auth.logout') }}" class="btn btn-primary">OK</a>
+      </div>
+    </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/input_barang.js') }}"></script>
+  </body>
+</html>
